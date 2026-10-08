@@ -18,8 +18,7 @@ class JornadaFailure implements Exception {
 /// (`serverTimestamp`), así que no se pueden falsear cambiando la hora del
 /// teléfono; las reglas también lo exigen.
 class JornadaService {
-  JornadaService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  JornadaService({FirebaseFirestore? firestore}) : _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseFirestore _firestore;
 
@@ -60,10 +59,7 @@ class JornadaService {
       if (data['salida'] != null) {
         throw const JornadaFailure('Ya registraste tu salida para esta sesión.');
       }
-      await ref.update({
-        'salida': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+      await ref.update({'salida': FieldValue.serverTimestamp(), 'updatedAt': FieldValue.serverTimestamp()});
     } on FirebaseException {
       throw const JornadaFailure('No se pudo registrar la salida.');
     }
@@ -74,6 +70,5 @@ class JornadaService {
   Stream<List<Jornada>> watchJornadas(String uid) => _jornadas
       .where('docenteId', isEqualTo: uid)
       .snapshots()
-      .map((s) => s.docs.map((d) => Jornada.fromDoc(d.id, d.data())).toList()
-        ..sort(compararJornadas));
+      .map((s) => s.docs.map((d) => Jornada.fromDoc(d.id, d.data())).toList()..sort(compararJornadas));
 }

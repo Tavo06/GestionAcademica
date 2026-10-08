@@ -30,6 +30,7 @@ import '../screens/matriculas/matriculas_screen.dart';
 import '../screens/perfil/perfil_screen.dart';
 import '../screens/reportes/reporte_screen.dart';
 import '../screens/reportes/reportes_screen.dart';
+import '../widgets/catalogo_cursos.dart';
 import 'app_routes.dart';
 import 'main_shell.dart';
 
@@ -53,11 +54,7 @@ GoRoute _ruta(String name, String path, GoRouterWidgetBuilder builder) =>
 
 /// [inicial] y [sinRedireccion] solo los usan las pruebas, para abrir una
 /// pantalla sin una sesión real de Firebase.
-GoRouter buildRouter(
-  AuthProvider auth, {
-  String inicial = AppPaths.login,
-  bool sinRedireccion = false,
-}) {
+GoRouter buildRouter(AuthProvider auth, {String inicial = AppPaths.login, bool sinRedireccion = false}) {
   return GoRouter(
     initialLocation: inicial,
     refreshListenable: auth,
@@ -103,31 +100,25 @@ GoRouter buildRouter(
       _ruta(AppRoutes.verificarCorreo, AppPaths.verificarCorreo, (_, _) => const VerifyEmailScreen()),
       _ruta(AppRoutes.verificarCelular, AppPaths.verificarCelular, (_, _) => const VerifyPhoneScreen()),
       _ruta(AppRoutes.crearContrasena, AppPaths.crearContrasena, (_, _) => const ChangePasswordScreen()),
-      _ruta(
-        AppRoutes.registroCompleto,
-        AppPaths.registroCompleto,
-        (_, _) => const RegistrationCompleteScreen(),
-      ),
+      _ruta(AppRoutes.registroCompleto, AppPaths.registroCompleto, (_, _) => const RegistrationCompleteScreen()),
       _ruta(AppRoutes.cuentaInactiva, AppPaths.cuentaInactiva, (_, _) => const InactiveScreen()),
 
       // Pantallas que se abren encima del menú. Reciben el objeto en
       // `extra` y su id en la URL.
-      _ruta(AppRoutes.cursoNuevo, AppPaths.cursoNuevo, (_, _) => const CursoFormScreen()),
+      _ruta(
+        AppRoutes.cursoNuevo,
+        AppPaths.cursoNuevo,
+        (_, state) => CursoFormScreen(plantilla: _extra<PlantillaCurso>(state)),
+      ),
       _ruta(
         AppRoutes.cursoEditar,
         AppPaths.cursoEditar,
-        (_, state) => CursoFormScreen(
-          cursoId: state.uri.queryParameters['id'],
-          curso: _extra<Curso>(state),
-        ),
+        (_, state) => CursoFormScreen(cursoId: state.uri.queryParameters['id'], curso: _extra<Curso>(state)),
       ),
       _ruta(
         AppRoutes.cursoDetalle,
         AppPaths.cursoDetalle,
-        (_, state) => CursoDetalleScreen(
-          cursoId: state.uri.queryParameters['id'],
-          curso: _extra<Curso>(state),
-        ),
+        (_, state) => CursoDetalleScreen(cursoId: state.uri.queryParameters['id'], curso: _extra<Curso>(state)),
       ),
       _ruta(
         AppRoutes.estudianteDetalle,
@@ -138,40 +129,28 @@ GoRouter buildRouter(
           cursoId: state.uri.queryParameters['curso'],
         ),
       ),
-      _ruta(
-        AppRoutes.matricula,
-        AppPaths.matricula,
-        (_, state) {
-          final pre = _extra<PreseleccionMatricula>(state);
-          return MatriculaScreen(
-            cursoId: pre?.curso?.id ?? state.uri.queryParameters['curso'],
-            estudianteId: pre?.estudiante?.id ?? state.uri.queryParameters['estudiante'],
-          );
-        },
-      ),
+      _ruta(AppRoutes.matricula, AppPaths.matricula, (_, state) {
+        final pre = _extra<PreseleccionMatricula>(state);
+        return MatriculaScreen(
+          cursoId: pre?.curso?.id ?? state.uri.queryParameters['curso'],
+          estudianteId: pre?.estudiante?.id ?? state.uri.queryParameters['estudiante'],
+        );
+      }),
       _ruta(
         AppRoutes.registroNotas,
         AppPaths.registroNotas,
-        (_, state) => RegistroNotasScreen(
-          evaluacionId: state.uri.queryParameters['id'],
-          evaluacion: _extra<Evaluacion>(state),
-        ),
+        (_, state) =>
+            RegistroNotasScreen(evaluacionId: state.uri.queryParameters['id'], evaluacion: _extra<Evaluacion>(state)),
       ),
       _ruta(
         AppRoutes.reporte,
         AppPaths.reporte,
-        (_, state) => ReporteScreen(
-          cursoId: state.uri.queryParameters['curso'],
-          curso: _extra<Curso>(state),
-        ),
+        (_, state) => ReporteScreen(cursoId: state.uri.queryParameters['curso'], curso: _extra<Curso>(state)),
       ),
       _ruta(
         AppRoutes.tomaAsistencia,
         AppPaths.tomaAsistencia,
-        (_, state) => TomaAsistenciaScreen(
-          sesionId: state.uri.queryParameters['id'],
-          sesion: _extra<Sesion>(state),
-        ),
+        (_, state) => TomaAsistenciaScreen(sesionId: state.uri.queryParameters['id'], sesion: _extra<Sesion>(state)),
       ),
       _ruta(AppRoutes.perfil, AppPaths.perfil, (_, _) => const PerfilScreen()),
       _ruta(AppRoutes.ajustes, AppPaths.ajustes, (_, _) => const AjustesScreen()),

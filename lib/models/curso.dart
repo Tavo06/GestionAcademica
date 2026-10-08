@@ -10,6 +10,9 @@ class Curso {
   final String codigo;
   final String nombre;
   final String? descripcion;
+
+  /// Carrera a la que pertenece (opcional; normalmente una del catálogo).
+  final String? carrera;
   final int creditos;
   final int totalSesiones;
 
@@ -26,6 +29,7 @@ class Curso {
     required this.codigo,
     required this.nombre,
     this.descripcion,
+    this.carrera,
     this.creditos = 3,
     required this.totalSesiones,
     required this.diasSemana,
@@ -42,32 +46,36 @@ class Curso {
   /// "MAT-101 · Matemática I".
   String get titulo => codigo.isEmpty ? nombre : '$codigo · $nombre';
 
-  Curso copyWith({String? codigo, String? nombre, String? descripcion, int? creditos}) => Curso(
-        id: id,
-        docenteId: docenteId,
-        codigo: codigo ?? this.codigo,
-        nombre: nombre ?? this.nombre,
-        descripcion: descripcion ?? this.descripcion,
-        creditos: creditos ?? this.creditos,
-        totalSesiones: totalSesiones,
-        diasSemana: diasSemana,
-        horaInicio: horaInicio,
-        horaFin: horaFin,
-        fechaInicio: fechaInicio,
-        createdAt: createdAt,
-      );
+  /// [carrera] vacía quita la carrera del curso.
+  Curso copyWith({String? codigo, String? nombre, String? descripcion, String? carrera, int? creditos}) => Curso(
+    id: id,
+    docenteId: docenteId,
+    codigo: codigo ?? this.codigo,
+    nombre: nombre ?? this.nombre,
+    descripcion: descripcion ?? this.descripcion,
+    carrera: carrera == null ? this.carrera : (carrera.isEmpty ? null : carrera),
+    creditos: creditos ?? this.creditos,
+    totalSesiones: totalSesiones,
+    diasSemana: diasSemana,
+    horaInicio: horaInicio,
+    horaFin: horaFin,
+    fechaInicio: fechaInicio,
+    createdAt: createdAt,
+  );
 
   factory Curso.fromDoc(String id, Map<String, dynamic> data) {
     DateTime? toDate(dynamic value) => value is Timestamp ? value.toDate() : null;
     final dias = (data['diasSemana'] as List?)?.whereType<int>().toList() ?? <int>[];
     dias.sort();
     final descripcion = (data['descripcion'] as String?)?.trim();
+    final carrera = (data['carrera'] as String?)?.trim();
     return Curso(
       id: id,
       docenteId: data['docenteId'] as String? ?? '',
       codigo: data['codigo'] as String? ?? '',
       nombre: data['nombre'] as String? ?? '',
       descripcion: descripcion == null || descripcion.isEmpty ? null : descripcion,
+      carrera: carrera == null || carrera.isEmpty ? null : carrera,
       creditos: (data['creditos'] as num?)?.toInt() ?? 0,
       totalSesiones: (data['totalSesiones'] as num?)?.toInt() ?? 0,
       diasSemana: dias,
@@ -84,6 +92,7 @@ class NuevoCurso {
   final String codigo;
   final String nombre;
   final String? descripcion;
+  final String? carrera;
   final int creditos;
   final int totalSesiones;
   final List<int> diasSemana;
@@ -95,6 +104,7 @@ class NuevoCurso {
     required this.codigo,
     required this.nombre,
     this.descripcion,
+    this.carrera,
     required this.creditos,
     required this.totalSesiones,
     required this.diasSemana,
@@ -103,11 +113,8 @@ class NuevoCurso {
     required this.fechaInicio,
   });
 
-  List<DateTime> get fechas => generarFechasSesiones(
-        fechaInicio: fechaInicio,
-        diasSemana: diasSemana,
-        total: totalSesiones,
-      );
+  List<DateTime> get fechas =>
+      generarFechasSesiones(fechaInicio: fechaInicio, diasSemana: diasSemana, total: totalSesiones);
 }
 
 /// Límites compartidos por el formulario y las reglas de Firestore.

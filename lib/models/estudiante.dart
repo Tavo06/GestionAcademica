@@ -39,16 +39,15 @@ class Estudiante {
     return normalizarBusqueda('$nombres $apellidos $codigo ${correo ?? ''}').contains(q);
   }
 
-  Estudiante copyWith({String? codigo, String? nombres, String? apellidos, String? correo}) =>
-      Estudiante(
-        id: id,
-        docenteId: docenteId,
-        codigo: codigo ?? this.codigo,
-        nombres: nombres ?? this.nombres,
-        apellidos: apellidos ?? this.apellidos,
-        correo: correo ?? this.correo,
-        fechaRegistro: fechaRegistro,
-      );
+  Estudiante copyWith({String? codigo, String? nombres, String? apellidos, String? correo}) => Estudiante(
+    id: id,
+    docenteId: docenteId,
+    codigo: codigo ?? this.codigo,
+    nombres: nombres ?? this.nombres,
+    apellidos: apellidos ?? this.apellidos,
+    correo: correo ?? this.correo,
+    fechaRegistro: fechaRegistro,
+  );
 
   factory Estudiante.fromDoc(String id, Map<String, dynamic> data) {
     final creado = data['createdAt'];
@@ -72,12 +71,7 @@ class DatosEstudiante {
   final String apellidos;
   final String? correo;
 
-  const DatosEstudiante({
-    required this.codigo,
-    required this.nombres,
-    required this.apellidos,
-    this.correo,
-  });
+  const DatosEstudiante({required this.codigo, required this.nombres, required this.apellidos, this.correo});
 }
 
 /// Sugiere el siguiente código libre (`ES-001`, `ES-002`, …).

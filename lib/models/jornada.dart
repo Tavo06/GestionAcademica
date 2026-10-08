@@ -39,16 +39,14 @@ class Jornada {
   bool get abierta => entrada != null && salida == null;
 
   /// Tiempo trabajado; null hasta que se marca la salida.
-  Duration? get duracion =>
-      entrada != null && salida != null ? salida!.difference(entrada!) : null;
+  Duration? get duracion => entrada != null && salida != null ? salida!.difference(entrada!) : null;
 
   ResultadoMarca? get resultadoEntrada => horaProgramadaInicio == null || entrada == null
       ? null
       : evaluarEntrada(horaProgramadaInicio!.en(fecha), entrada!);
 
-  ResultadoMarca? get resultadoSalida => horaProgramadaFin == null || salida == null
-      ? null
-      : evaluarSalida(horaProgramadaFin!.en(fecha), salida!);
+  ResultadoMarca? get resultadoSalida =>
+      horaProgramadaFin == null || salida == null ? null : evaluarSalida(horaProgramadaFin!.en(fecha), salida!);
 
   factory Jornada.fromDoc(String id, Map<String, dynamic> data) {
     DateTime? toDate(dynamic value) => value is Timestamp ? value.toDate() : null;

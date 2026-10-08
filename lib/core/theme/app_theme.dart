@@ -64,11 +64,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
     gradientEnd: Color(0xFF0B3B37),
   );
 
-  LinearGradient get gradient => LinearGradient(
-        colors: [gradientStart, gradientEnd],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
+  LinearGradient get gradient =>
+      LinearGradient(colors: [gradientStart, gradientEnd], begin: Alignment.topLeft, end: Alignment.bottomRight);
 
   @override
   AppTokens copyWith({
@@ -84,21 +81,20 @@ class AppTokens extends ThemeExtension<AppTokens> {
     Color? sidebar,
     Color? gradientStart,
     Color? gradientEnd,
-  }) =>
-      AppTokens(
-        success: success ?? this.success,
-        warning: warning ?? this.warning,
-        error: error ?? this.error,
-        info: info ?? this.info,
-        accent: accent ?? this.accent,
-        textPrimary: textPrimary ?? this.textPrimary,
-        textSecondary: textSecondary ?? this.textSecondary,
-        surfaceMuted: surfaceMuted ?? this.surfaceMuted,
-        border: border ?? this.border,
-        sidebar: sidebar ?? this.sidebar,
-        gradientStart: gradientStart ?? this.gradientStart,
-        gradientEnd: gradientEnd ?? this.gradientEnd,
-      );
+  }) => AppTokens(
+    success: success ?? this.success,
+    warning: warning ?? this.warning,
+    error: error ?? this.error,
+    info: info ?? this.info,
+    accent: accent ?? this.accent,
+    textPrimary: textPrimary ?? this.textPrimary,
+    textSecondary: textSecondary ?? this.textSecondary,
+    surfaceMuted: surfaceMuted ?? this.surfaceMuted,
+    border: border ?? this.border,
+    sidebar: sidebar ?? this.sidebar,
+    gradientStart: gradientStart ?? this.gradientStart,
+    gradientEnd: gradientEnd ?? this.gradientEnd,
+  );
 
   @override
   AppTokens lerp(AppTokens? other, double t) {
@@ -133,24 +129,24 @@ class AppTheme {
   AppTheme._();
 
   static ThemeData get light => _build(
-        brightness: Brightness.light,
-        tokens: AppTokens.light,
-        primary: AppPalette.primary,
-        secondary: AppPalette.secondary,
-        background: AppPalette.background,
-        surface: AppPalette.surface,
-        error: AppPalette.error,
-      );
+    brightness: Brightness.light,
+    tokens: AppTokens.light,
+    primary: AppPalette.primary,
+    secondary: AppPalette.secondary,
+    background: AppPalette.background,
+    surface: AppPalette.surface,
+    error: AppPalette.error,
+  );
 
   static ThemeData get dark => _build(
-        brightness: Brightness.dark,
-        tokens: AppTokens.dark,
-        primary: AppPalette.primaryDark,
-        secondary: AppPalette.secondaryDark,
-        background: AppPalette.backgroundDark,
-        surface: AppPalette.surfaceDark,
-        error: AppPalette.errorDark,
-      );
+    brightness: Brightness.dark,
+    tokens: AppTokens.dark,
+    primary: AppPalette.primaryDark,
+    secondary: AppPalette.secondaryDark,
+    background: AppPalette.backgroundDark,
+    surface: AppPalette.surfaceDark,
+    error: AppPalette.errorDark,
+  );
 
   static ThemeData _build({
     required Brightness brightness,
@@ -188,10 +184,7 @@ class AppTheme {
         )
         .apply(bodyColor: tokens.textPrimary, displayColor: tokens.textPrimary);
     const pildora = StadiumBorder();
-    final campo = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
-      borderSide: BorderSide.none,
-    );
+    final campo = OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none);
 
     return ThemeData(
       useMaterial3: true,
@@ -207,11 +200,7 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.outfit(
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-          color: tokens.textPrimary,
-        ),
+        titleTextStyle: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.w700, color: tokens.textPrimary),
       ),
       cardTheme: CardThemeData(
         color: surface,
@@ -333,15 +322,41 @@ class AppTheme {
         backgroundColor: surface,
         surfaceTintColor: Colors.transparent,
         showDragHandle: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: oscuro ? tokens.surfaceMuted : tokens.sidebar,
         contentTextStyle: TextStyle(color: oscuro ? tokens.textPrimary : Colors.white),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      // Calendarios (fecha de nacimiento, inicio de curso…): cabecera con el
+      // color de la marca, días redondos y hoy marcado en terracota.
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        headerBackgroundColor: oscuro ? tokens.surfaceMuted : tokens.sidebar,
+        headerForegroundColor: oscuro ? tokens.textPrimary : Colors.white,
+        headerHeadlineStyle: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.w700),
+        weekdayStyle: TextStyle(fontWeight: FontWeight.w800, color: tokens.textSecondary),
+        dayShape: const WidgetStatePropertyAll(CircleBorder()),
+        todayBorder: BorderSide(color: secondary, width: 1.6),
+        todayForegroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected) ? colorScheme.onPrimary : secondary,
+        ),
+        rangeSelectionBackgroundColor: primary.withValues(alpha: oscuro ? 0.22 : 0.12),
+        rangePickerHeaderBackgroundColor: oscuro ? tokens.surfaceMuted : tokens.sidebar,
+        rangePickerHeaderForegroundColor: oscuro ? tokens.textPrimary : Colors.white,
+        yearShape: const WidgetStatePropertyAll(StadiumBorder()),
+        cancelButtonStyle: TextButton.styleFrom(foregroundColor: tokens.textSecondary),
+        confirmButtonStyle: FilledButton.styleFrom(backgroundColor: primary, foregroundColor: colorScheme.onPrimary),
+      ),
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        dialHandColor: primary,
+        hourMinuteShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       dividerTheme: DividerThemeData(color: tokens.border, thickness: 1),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: primary),

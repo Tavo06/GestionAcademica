@@ -135,11 +135,9 @@ void main() {
     final app = await montarApp(tester, ruta: '/inicio', academico: cargando);
     final ana = estudianteDe('ana', 'Ana', 'López');
     final contexto = tester.element(find.byType(Scaffold).first);
-    unawaited(GoRouter.of(contexto).pushNamed<void>(
-      AppRoutes.estudianteDetalle,
-      queryParameters: {'id': ana.id},
-      extra: ana,
-    ));
+    unawaited(
+      GoRouter.of(contexto).pushNamed<void>(AppRoutes.estudianteDetalle, queryParameters: {'id': ana.id}, extra: ana),
+    );
     await esperar(tester);
     expect(app.academico.cargando, isTrue);
     expect(find.text('Ana López'), findsWidgets);
@@ -163,4 +161,3 @@ void main() {
     expect(tema.oscuro, isFalse);
   });
 }
-

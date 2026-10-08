@@ -41,9 +41,7 @@ Future<void> showHorarioNoDisponible(BuildContext context, HorarioNoDisponible e
       icon: Icon(Icons.event_busy_rounded, color: context.tokens.error, size: 36),
       title: const Text('Horario no disponible'),
       content: Text(e.message, textAlign: TextAlign.center),
-      actions: [
-        FilledButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Entendido')),
-      ],
+      actions: [FilledButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Entendido'))],
     ),
   );
 }
@@ -68,9 +66,7 @@ Future<void> mostrarResultadoAsistencia(BuildContext context, AsistenciaGuardada
         'su asistencia.',
         textAlign: TextAlign.center,
       ),
-      actions: [
-        FilledButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Entendido')),
-      ],
+      actions: [FilledButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Entendido'))],
     ),
   );
 }

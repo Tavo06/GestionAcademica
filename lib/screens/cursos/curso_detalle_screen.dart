@@ -59,17 +59,15 @@ class _CursoDetalleScreenState extends State<CursoDetalleScreen> {
     final ok = await confirmar(
       context,
       titulo: 'Eliminar curso',
-      mensaje: 'Se eliminarán "${curso.nombre}", sus ${curso.totalSesiones} sesiones con su '
+      mensaje:
+          'Se eliminarán "${curso.nombre}", sus ${curso.totalSesiones} sesiones con su '
           'asistencia, sus matrículas y sus evaluaciones con notas. Tus jornadas se '
           'conservan en el historial.',
     );
     if (!ok || !mounted) return;
     final evaluaciones = context.read<CalificacionesProvider>().evaluacionesDe(curso.id);
     try {
-      await context.read<AcademicoProvider>().eliminarCurso(
-            curso.id,
-            evaluacionIds: evaluaciones.map((e) => e.id),
-          );
+      await context.read<AcademicoProvider>().eliminarCurso(curso.id, evaluacionIds: evaluaciones.map((e) => e.id));
       if (!mounted) return;
       showMessage(context, 'Curso eliminado.');
       context.goNamed(AppRoutes.cursos);
@@ -90,7 +88,8 @@ class _CursoDetalleScreenState extends State<CursoDetalleScreen> {
     final ok = await confirmar(
       context,
       titulo: 'Retirar del curso',
-      mensaje: '${e.estudiante.nombreVisible} quedará como "retirado" en ${curso.nombre}. '
+      mensaje:
+          '${e.estudiante.nombreVisible} quedará como "retirado" en ${curso.nombre}. '
           'Sus notas y asistencia se conservan y puedes volver a matricularlo.',
       accion: 'Retirar',
     );
@@ -118,14 +117,14 @@ class _CursoDetalleScreenState extends State<CursoDetalleScreen> {
           child: academico.cargando && id != null
               ? const CargandoView()
               : academico.error != null
-                  ? LoadErrorView(message: academico.error!, onRetry: academico.reintentar)
-                  : const UnavailableView(
-                      icon: Icons.menu_book_outlined,
-                      title: 'Curso no disponible',
-                      message: 'El curso no existe o fue eliminado.',
-                      destino: AppRoutes.cursos,
-                      destinoTexto: 'Ir a Cursos',
-                    ),
+              ? LoadErrorView(message: academico.error!, onRetry: academico.reintentar)
+              : const UnavailableView(
+                  icon: Icons.menu_book_outlined,
+                  title: 'Curso no disponible',
+                  message: 'El curso no existe o fue eliminado.',
+                  destino: AppRoutes.cursos,
+                  destinoTexto: 'Ir a Cursos',
+                ),
         ),
       );
     }
@@ -158,15 +157,15 @@ class _CursoDetalleScreenState extends State<CursoDetalleScreen> {
       ),
       floatingActionButton: switch (_vista) {
         _Vista.matriculados => FloatingActionButton.extended(
-            onPressed: () => _matricular(curso),
-            icon: const Icon(Icons.how_to_reg_rounded),
-            label: const Text('Matricular'),
-          ),
+          onPressed: () => _matricular(curso),
+          icon: const Icon(Icons.how_to_reg_rounded),
+          label: const Text('Matricular'),
+        ),
         _Vista.evaluaciones => FloatingActionButton.extended(
-            onPressed: () => showEvaluacionFormDialog(context, curso),
-            icon: const Icon(Icons.add_task_rounded),
-            label: const Text('Evaluación'),
-          ),
+          onPressed: () => showEvaluacionFormDialog(context, curso),
+          icon: const Icon(Icons.add_task_rounded),
+          label: const Text('Evaluación'),
+        ),
         _Vista.sesiones => null,
       },
       body: SafeArea(
@@ -201,126 +200,128 @@ class _CursoDetalleScreenState extends State<CursoDetalleScreen> {
             const SizedBox(height: 16),
             ...switch (_vista) {
               _Vista.sesiones => [
-                  for (final sesion in resumen.sesiones)
-                    SesionTile(
-                      curso: curso,
-                      sesion: sesion,
-                      hoy: academico.hoy,
-                      totalEstudiantes: resumen.estudiantes.length,
-                      onTap: () => _abrirSesion(sesion),
-                      trailing: puedeEditarFecha(sesion.fecha, academico.hoy)
-                          ? PopupMenuButton<String>(
-                              tooltip: 'Opciones',
-                              onSelected: (_) async {
-                                if (await showCambiarFechaDialog(context, sesion) && context.mounted) {
-                                  showMessage(context, 'Fecha de la sesión actualizada.');
-                                }
-                              },
-                              itemBuilder: (_) => const [
-                                PopupMenuItem(value: 'fecha', child: Text('Cambiar fecha')),
+                for (final sesion in resumen.sesiones)
+                  SesionTile(
+                    curso: curso,
+                    sesion: sesion,
+                    hoy: academico.hoy,
+                    totalEstudiantes: resumen.estudiantes.length,
+                    onTap: () => _abrirSesion(sesion),
+                    trailing: puedeEditarFecha(sesion.fecha, academico.hoy)
+                        ? PopupMenuButton<String>(
+                            tooltip: 'Opciones',
+                            onSelected: (_) async {
+                              if (await showCambiarFechaDialog(context, sesion) && context.mounted) {
+                                showMessage(context, 'Fecha de la sesión actualizada.');
+                              }
+                            },
+                            itemBuilder: (_) => const [PopupMenuItem(value: 'fecha', child: Text('Cambiar fecha'))],
+                          )
+                        : null,
+                  ),
+              ],
+              _Vista.matriculados =>
+                resumen.estudiantes.isEmpty
+                    ? [
+                        EmptyState(
+                          icon: Icons.groups_rounded,
+                          title: 'Sin matriculados',
+                          message:
+                              'Matricula estudiantes en este curso para tomar su '
+                              'asistencia y registrar sus notas.',
+                          action: FilledButton.icon(
+                            onPressed: () => _matricular(curso),
+                            icon: const Icon(Icons.how_to_reg_rounded),
+                            label: const Text('Matricular'),
+                          ),
+                        ),
+                      ]
+                    : [
+                        for (final e in resumen.estudiantes)
+                          EstudianteTile(
+                            estudiante: e.estudiante,
+                            detalle: '${e.estudiante.codigo} · ${e.faltasTexto}',
+                            color: e.enLdi ? context.tokens.error : null,
+                            onTap: () => context.abrirEstudiante(e.estudiante, curso: curso),
+                            extra: Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: [
+                                LdiChip(enLdi: e.enLdi),
+                                if (promedios[e.estudiante.id] case final p?) CondicionChip(p.condicion),
                               ],
-                            )
-                          : null,
-                    ),
-                ],
-              _Vista.matriculados => resumen.estudiantes.isEmpty
-                  ? [
-                      EmptyState(
-                        icon: Icons.groups_rounded,
-                        title: 'Sin matriculados',
-                        message: 'Matricula estudiantes en este curso para tomar su '
-                            'asistencia y registrar sus notas.',
-                        action: FilledButton.icon(
-                          onPressed: () => _matricular(curso),
-                          icon: const Icon(Icons.how_to_reg_rounded),
-                          label: const Text('Matricular'),
-                        ),
-                      ),
-                    ]
-                  : [
-                      for (final e in resumen.estudiantes)
-                        EstudianteTile(
-                          estudiante: e.estudiante,
-                          detalle: '${e.estudiante.codigo} · ${e.faltasTexto}',
-                          color: e.enLdi ? context.tokens.error : null,
-                          onTap: () => context.abrirEstudiante(e.estudiante, curso: curso),
-                          extra: Wrap(
-                            spacing: 6,
-                            runSpacing: 6,
-                            children: [
-                              LdiChip(enLdi: e.enLdi),
-                              if (promedios[e.estudiante.id] case final p?) CondicionChip(p.condicion),
-                            ],
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              NotaBadge(promedios[e.estudiante.id]?.promedio),
-                              PopupMenuButton<String>(
-                                tooltip: 'Opciones',
-                                onSelected: (_) => _retirar(curso, e),
-                                itemBuilder: (_) => const [
-                                  PopupMenuItem(value: 'retirar', child: Text('Retirar del curso')),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-              _Vista.evaluaciones => notas.evaluaciones.isEmpty
-                  ? [
-                      EmptyState(
-                        icon: Icons.grade_rounded,
-                        title: 'Sin evaluaciones',
-                        message: 'Crea las evaluaciones del curso con su peso (%) para '
-                            'registrar notas y calcular promedios.',
-                        action: FilledButton.icon(
-                          onPressed: () => showEvaluacionFormDialog(context, curso),
-                          icon: const Icon(Icons.add_task_rounded),
-                          label: const Text('Nueva evaluación'),
-                        ),
-                      ),
-                    ]
-                  : [
-                      ProgressLine(
-                        value: notas.pesoAsignado / 100,
-                        label: 'Peso asignado en evaluaciones',
-                        detalle: '${notas.pesoAsignado}% de 100%',
-                        color: context.colors.secondary,
-                      ),
-                      const SizedBox(height: 12),
-                      for (final ev in notas.evaluaciones)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Card(
-                            child: ListTile(
-                              onTap: () async {
-                                final r = await context.abrirRegistroNotas(ev);
-                                if (r != null && context.mounted) {
-                                  showMessage(context, 'Notas de ${r.evaluacion.nombre} guardadas.');
-                                }
-                              },
-                              leading: CircleAvatar(
-                                backgroundColor: context.colors.secondary.withValues(alpha: 0.15),
-                                child: Text(
-                                  '${ev.peso}%',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w800,
-                                    color: context.colors.secondary,
-                                  ),
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                NotaBadge(promedios[e.estudiante.id]?.promedio),
+                                PopupMenuButton<String>(
+                                  tooltip: 'Opciones',
+                                  onSelected: (_) => _retirar(curso, e),
+                                  itemBuilder: (_) => const [
+                                    PopupMenuItem(value: 'retirar', child: Text('Retirar del curso')),
+                                  ],
                                 ),
-                              ),
-                              title: Text(ev.nombre, style: const TextStyle(fontWeight: FontWeight.w700)),
-                              subtitle: Text(
-                                '${ev.tipo.etiqueta} · ${formatFechaCorta(ev.fecha)} · '
-                                '${ev.notas.length}/${resumen.estudiantes.length} calificados',
-                              ),
-                              trailing: const Icon(Icons.edit_note_rounded),
+                              ],
                             ),
                           ),
+                      ],
+              _Vista.evaluaciones =>
+                notas.evaluaciones.isEmpty
+                    ? [
+                        EmptyState(
+                          icon: Icons.grade_rounded,
+                          title: 'Sin evaluaciones',
+                          message:
+                              'Crea las evaluaciones del curso con su peso (%) para '
+                              'registrar notas y calcular promedios.',
+                          action: FilledButton.icon(
+                            onPressed: () => showEvaluacionFormDialog(context, curso),
+                            icon: const Icon(Icons.add_task_rounded),
+                            label: const Text('Nueva evaluación'),
+                          ),
                         ),
-                    ],
+                      ]
+                    : [
+                        ProgressLine(
+                          value: notas.pesoAsignado / 100,
+                          label: 'Peso asignado en evaluaciones',
+                          detalle: '${notas.pesoAsignado}% de 100%',
+                          color: context.colors.secondary,
+                        ),
+                        const SizedBox(height: 12),
+                        for (final ev in notas.evaluaciones)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Card(
+                              child: ListTile(
+                                onTap: () async {
+                                  final r = await context.abrirRegistroNotas(ev);
+                                  if (r != null && context.mounted) {
+                                    showMessage(context, 'Notas de ${r.evaluacion.nombre} guardadas.');
+                                  }
+                                },
+                                leading: CircleAvatar(
+                                  backgroundColor: context.colors.secondary.withValues(alpha: 0.15),
+                                  child: Text(
+                                    '${ev.peso}%',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                      color: context.colors.secondary,
+                                    ),
+                                  ),
+                                ),
+                                title: Text(ev.nombre, style: const TextStyle(fontWeight: FontWeight.w700)),
+                                subtitle: Text(
+                                  '${ev.tipo.etiqueta} · ${formatFechaCorta(ev.fecha)} · '
+                                  '${ev.notas.length}/${resumen.estudiantes.length} calificados',
+                                ),
+                                trailing: const Icon(Icons.edit_note_rounded),
+                              ),
+                            ),
+                          ),
+                      ],
             },
           ],
         ),
@@ -352,10 +353,8 @@ class _Cabecera extends StatelessWidget {
           ),
           Text(
             curso.nombre,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(context).textTheme.headlineSmall
+                ?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
           ),
           if (curso.descripcion != null) Text(curso.descripcion!, style: TextStyle(color: tenue)),
           const SizedBox(height: 10),
@@ -375,9 +374,15 @@ class _Cabecera extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              Expanded(child: DatoBanner(valor: '${resumen.realizadas}/${curso.totalSesiones}', etiqueta: 'Sesiones')),
-              Expanded(child: DatoBanner(valor: '${resumen.estudiantes.length}', etiqueta: 'Matriculados')),
-              Expanded(child: DatoBanner(valor: formatNota(notas.promedioGeneral), etiqueta: 'Promedio')),
+              Expanded(
+                child: DatoBanner(valor: '${resumen.realizadas}/${curso.totalSesiones}', etiqueta: 'Sesiones'),
+              ),
+              Expanded(
+                child: DatoBanner(valor: '${resumen.estudiantes.length}', etiqueta: 'Matriculados'),
+              ),
+              Expanded(
+                child: DatoBanner(valor: formatNota(notas.promedioGeneral), etiqueta: 'Promedio'),
+              ),
             ],
           ),
           const SizedBox(height: 12),

@@ -5,9 +5,12 @@ import '../../../core/theme/app_theme.dart';
 /// Width below which auth screens use tighter spacing (small phones).
 const double anchoCompacto = 400;
 
-/// Page of the auth flow (login, verify email, create password): soft
-/// tinted background, centered scrollable content and a quick fade-in.
-/// [builder] receives the available width to adapt the layout.
+/// Background photo of the login and the rest of the auth flow.
+const String imagenFondoAuth = 'lib/img/logoweb.jpg';
+
+/// Page of the auth flow (login, verify email, create password): background
+/// photo under a tinted veil, centered scrollable content and a quick
+/// fade-in. [builder] receives the available width to adapt the layout.
 class AuthPage extends StatelessWidget {
   final Widget Function(BuildContext context, double ancho) builder;
 
@@ -15,39 +18,72 @@ class AuthPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final fondo = Theme.of(context).scaffoldBackgroundColor;
     return Scaffold(
-      body: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: const [0, 0.6],
-            colors: [
-              Color.alphaBlend(colors.primary.withValues(alpha: context.isDark ? 0.12 : 0.07), fondo),
-              fondo,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final ancho = constraints.maxWidth;
-              final compacto = ancho < anchoCompacto;
-              return Center(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: compacto ? 16 : 24,
-                    vertical: compacto ? 12 : 24,
+      backgroundColor: context.tokens.sidebar,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          const _FondoAuth(),
+          SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final ancho = constraints.maxWidth;
+                final compacto = ancho < anchoCompacto;
+                return Center(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(horizontal: compacto ? 16 : 24, vertical: compacto ? 12 : 24),
+                    child: _Aparicion(child: builder(context, ancho)),
                   ),
-                  child: _Aparicion(child: builder(context, ancho)),
-                ),
-              );
-            },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The photo fills the screen at any size (`BoxFit.cover`). On portrait
+/// screens it is cropped towards its center (the graduation cap and the
+/// hands) and a veil in the theme colors keeps the forms readable.
+class _FondoAuth extends StatelessWidget {
+  const _FondoAuth();
+
+  @override
+  Widget build(BuildContext context) {
+    final tamano = MediaQuery.sizeOf(context);
+    final vertical = tamano.height > tamano.width;
+    final oscuro = context.isDark;
+    final base = context.tokens.sidebar;
+    final tinte = context.colors.primary;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.asset(
+          imagenFondoAuth,
+          fit: BoxFit.cover,
+          alignment: vertical ? const Alignment(-0.05, 0) : Alignment.center,
+          filterQuality: FilterQuality.medium,
+          gaplessPlayback: true,
+          // Without the photo (tests, failed load) the veil alone remains.
+          errorBuilder: (_, _, _) => const SizedBox.shrink(),
+        ),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: vertical ? Alignment.topCenter : Alignment.centerLeft,
+              end: vertical ? Alignment.bottomCenter : Alignment.centerRight,
+              colors: [
+                base.withValues(alpha: oscuro ? 0.78 : 0.55),
+                Color.alphaBlend(tinte.withValues(alpha: 0.25), base).withValues(alpha: oscuro ? 0.7 : 0.4),
+                base.withValues(alpha: oscuro ? 0.88 : 0.7),
+              ],
+              stops: const [0, 0.5, 1],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -117,10 +153,7 @@ Future<T?> showAuthDialog<T>(BuildContext context, WidgetBuilder builder) {
       final curva = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
       return FadeTransition(
         opacity: curva,
-        child: ScaleTransition(
-          scale: Tween<double>(begin: 0.96, end: 1).animate(curva),
-          child: child,
-        ),
+        child: ScaleTransition(scale: Tween<double>(begin: 0.96, end: 1).animate(curva), child: child),
       );
     },
   );
@@ -181,11 +214,7 @@ class AuthDialog extends StatelessWidget {
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: tokens.textPrimary,
-                  ),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: tokens.textPrimary),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -305,8 +334,7 @@ InputDecoration authInputDecoration(
 /// teacher only types the 9 digits.
 InputDecoration authCelularDecoration(BuildContext context, {String? helperText}) {
   final tokens = context.tokens;
-  return authInputDecoration(context, label: 'Celular (9 dígitos)', icon: Icons.smartphone_rounded)
-      .copyWith(
+  return authInputDecoration(context, label: 'Celular (9 dígitos)', icon: Icons.smartphone_rounded).copyWith(
     hintText: '9XXXXXXXX',
     helperText: helperText,
     prefixIcon: Padding(
@@ -356,10 +384,7 @@ class AuthMessage extends StatelessWidget {
           Icon(icono, color: color, size: 22),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              message,
-              style: TextStyle(color: tokens.textPrimary, fontSize: 13.5, height: 1.4),
-            ),
+            child: Text(message, style: TextStyle(color: tokens.textPrimary, fontSize: 13.5, height: 1.4)),
           ),
         ],
       ),
@@ -411,9 +436,7 @@ class AuthPrimaryButton extends StatelessWidget {
             else
               Icon(icon, size: 20),
             const SizedBox(width: 10),
-            Flexible(
-              child: Text(loading ? loadingLabel : label, overflow: TextOverflow.ellipsis),
-            ),
+            Flexible(child: Text(loading ? loadingLabel : label, overflow: TextOverflow.ellipsis)),
           ],
         ),
       ),

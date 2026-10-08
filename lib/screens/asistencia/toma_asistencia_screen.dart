@@ -61,12 +61,12 @@ class _TomaAsistenciaScreenState extends State<TomaAsistenciaScreen> {
   }
 
   bool _pasaFiltro(EstadoAsistencia? estado) => switch (_filtro) {
-        _Filtro.todos => true,
-        _Filtro.presente => estado == EstadoAsistencia.presente,
-        _Filtro.tarde => estado == EstadoAsistencia.tarde,
-        _Filtro.falta => estado == EstadoAsistencia.falta,
-        _Filtro.sinMarcar => estado == null,
-      };
+    _Filtro.todos => true,
+    _Filtro.presente => estado == EstadoAsistencia.presente,
+    _Filtro.tarde => estado == EstadoAsistencia.tarde,
+    _Filtro.falta => estado == EstadoAsistencia.falta,
+    _Filtro.sinMarcar => estado == null,
+  };
 
   static const _etiquetas = {
     _Filtro.todos: 'Todos',
@@ -131,12 +131,12 @@ class _TomaAsistenciaScreenState extends State<TomaAsistenciaScreen> {
     final hoy = academico.hoy;
     final editable = puedeRegistrarAsistencia(sesion.fecha, hoy);
     final estudiantes = academico.matriculadosEn(curso.id);
-    final bloqueados = {for (final e in estudiantes) if (academico.bloqueado(e.id, sesion)) e.id};
+    final bloqueados = {
+      for (final e in estudiantes)
+        if (academico.bloqueado(e.id, sesion)) e.id,
+    };
     final marcables = estudiantes.where((e) => !bloqueados.contains(e.id)).toList();
-    final resumen = ResumenAsistencia.contar([
-      for (final e in marcables)
-        ?_seleccion[e.id],
-    ]);
+    final resumen = ResumenAsistencia.contar([for (final e in marcables) ?_seleccion[e.id]]);
     final pendientes = marcables.length - resumen.total;
     final visibles = estudiantes.where((e) => _pasaFiltro(_seleccion[e.id])).toList();
     final estadisticas = {for (final a in academico.resumenDe(curso).estudiantes) a.estudiante.id: a};
@@ -177,10 +177,7 @@ class _TomaAsistenciaScreenState extends State<TomaAsistenciaScreen> {
           child: PageList(
             children: [
               _Cabecera(curso: curso, sesion: sesion, resumen: resumen, pendientes: pendientes),
-              if (!editable) ...[
-                const SizedBox(height: 12),
-                _AvisoBloqueo(sesion: sesion, hoy: hoy),
-              ],
+              if (!editable) ...[const SizedBox(height: 12), _AvisoBloqueo(sesion: sesion, hoy: hoy)],
               const SizedBox(height: 16),
               if (estudiantes.isEmpty)
                 EmptyState(
@@ -282,10 +279,18 @@ class _Cabecera extends StatelessWidget {
           const SizedBox(height: 14),
           Row(
             children: [
-              Expanded(child: DatoBanner(valor: '${resumen.presentes}', etiqueta: 'Presentes')),
-              Expanded(child: DatoBanner(valor: '${resumen.tardes}', etiqueta: 'Tardanzas')),
-              Expanded(child: DatoBanner(valor: '${resumen.faltas}', etiqueta: 'Faltas')),
-              Expanded(child: DatoBanner(valor: '$pendientes', etiqueta: 'Sin marcar')),
+              Expanded(
+                child: DatoBanner(valor: '${resumen.presentes}', etiqueta: 'Presentes'),
+              ),
+              Expanded(
+                child: DatoBanner(valor: '${resumen.tardes}', etiqueta: 'Tardanzas'),
+              ),
+              Expanded(
+                child: DatoBanner(valor: '${resumen.faltas}', etiqueta: 'Faltas'),
+              ),
+              Expanded(
+                child: DatoBanner(valor: '$pendientes', etiqueta: 'Sin marcar'),
+              ),
             ],
           ),
         ],
@@ -355,8 +360,10 @@ class _FilaAsistencia extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(estudiante.nombreVisible,
-                            style: TextStyle(fontWeight: FontWeight.w800, color: tokens.textPrimary)),
+                        Text(
+                          estudiante.nombreVisible,
+                          style: TextStyle(fontWeight: FontWeight.w800, color: tokens.textPrimary),
+                        ),
                         Text(
                           [estudiante.codigo, ?faltasTexto].join(' · '),
                           style: TextStyle(fontSize: 12, color: tokens.textSecondary),

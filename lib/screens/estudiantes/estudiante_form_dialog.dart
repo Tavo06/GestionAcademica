@@ -9,11 +9,10 @@ import '../../services/academico_service.dart';
 
 /// Formulario de estudiante en un diálogo. Sin [estudiante] lo crea; con
 /// [estudiante] edita sus datos. Devuelve el [Estudiante] guardado, o null.
-Future<Estudiante?> showEstudianteFormDialog(BuildContext context, {Estudiante? estudiante}) =>
-    showDialog<Estudiante>(
-      context: context,
-      builder: (_) => _EstudianteFormDialog(estudiante: estudiante),
-    );
+Future<Estudiante?> showEstudianteFormDialog(BuildContext context, {Estudiante? estudiante}) => showDialog<Estudiante>(
+  context: context,
+  builder: (_) => _EstudianteFormDialog(estudiante: estudiante),
+);
 
 class _EstudianteFormDialog extends StatefulWidget {
   final Estudiante? estudiante;
@@ -27,8 +26,7 @@ class _EstudianteFormDialog extends StatefulWidget {
 class _EstudianteFormDialogState extends State<_EstudianteFormDialog> {
   final _formKey = GlobalKey<FormState>();
   late final _codigoController = TextEditingController(
-    text: widget.estudiante?.codigo ??
-        sugerirCodigoEstudiante(context.read<AcademicoProvider>().estudiantes),
+    text: widget.estudiante?.codigo ?? sugerirCodigoEstudiante(context.read<AcademicoProvider>().estudiantes),
   );
   late final _nombresController = TextEditingController(text: widget.estudiante?.nombres);
   late final _apellidosController = TextEditingController(text: widget.estudiante?.apellidos);
@@ -145,10 +143,7 @@ class _EstudianteFormDialogState extends State<_EstudianteFormDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: _guardando ? null : () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
-        ),
+        TextButton(onPressed: _guardando ? null : () => Navigator.of(context).pop(), child: const Text('Cancelar')),
         FilledButton(
           onPressed: _guardando ? null : _guardar,
           child: _guardando

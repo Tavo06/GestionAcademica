@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -44,10 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     final authState = context.read<AuthProvider>();
     try {
-      await authState.login(
-        correo: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
+      await authState.login(correo: _emailController.text.trim(), password: _passwordController.text);
       // Keep the loading state: the router redirect takes over as soon as
       // the Firestore profile finishes loading.
     } on AuthFailure catch (e) {
@@ -81,10 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
           formulario: _formulario(context),
         );
         if (!conPanel) {
-          return ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 440),
-            child: tarjeta,
-          );
+          return ConstrainedBox(constraints: const BoxConstraints(maxWidth: 440), child: tarjeta);
         }
         return ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1000),
@@ -117,11 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
               textInputAction: TextInputAction.next,
               autocorrect: false,
               autofillHints: const [AutofillHints.email],
-              decoration: authInputDecoration(
-                context,
-                label: 'Correo electrónico',
-                icon: Icons.mail_outline_rounded,
-              ),
+              decoration: authInputDecoration(context, label: 'Correo electrónico', icon: Icons.mail_outline_rounded),
               validator: Validators.email,
             ),
             const SizedBox(height: 16),
@@ -137,9 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 icon: Icons.lock_outline_rounded,
                 suffixIcon: IconButton(
                   tooltip: _obscurePassword ? 'Mostrar contraseña' : 'Ocultar contraseña',
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                  ),
+                  icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
                   onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                 ),
               ),
@@ -157,10 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
               duration: const Duration(milliseconds: 180),
               child: _error == null
                   ? const SizedBox(width: double.infinity)
-                  : Padding(
-                      padding: const EdgeInsets.only(top: 4, bottom: 12),
-                      child: AuthMessage(_error!),
-                    ),
+                  : Padding(padding: const EdgeInsets.only(top: 4, bottom: 12), child: AuthMessage(_error!)),
             ),
             const SizedBox(height: 8),
             AuthPrimaryButton(
@@ -178,10 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Text('¿No tienes una cuenta?', style: TextStyle(color: tokens.textSecondary)),
-                TextButton(
-                  onPressed: _isSubmitting ? null : _handleRegister,
-                  child: const Text('Crear cuenta'),
-                ),
+                TextButton(onPressed: _isSubmitting ? null : _handleRegister, child: const Text('Crear cuenta')),
               ],
             ),
           ],
@@ -197,11 +181,7 @@ class _LoginCard extends StatelessWidget {
   final bool mostrarMarca;
   final Widget formulario;
 
-  const _LoginCard({
-    required this.compacta,
-    required this.mostrarMarca,
-    required this.formulario,
-  });
+  const _LoginCard({required this.compacta, required this.mostrarMarca, required this.formulario});
 
   @override
   Widget build(BuildContext context) {
@@ -218,11 +198,7 @@ class _LoginCard extends StatelessWidget {
             Text(
               AppStrings.appName,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: compacta ? 24 : 26,
-                fontWeight: FontWeight.w800,
-                color: tokens.textPrimary,
-              ),
+              style: TextStyle(fontSize: compacta ? 24 : 26, fontWeight: FontWeight.w800, color: tokens.textPrimary),
             ),
             const SizedBox(height: 6),
             Text(
@@ -266,68 +242,70 @@ class _PanelMarca extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     const blanco = Colors.white;
-    return Container(
-      padding: const EdgeInsets.all(40),
-      decoration: BoxDecoration(
-        gradient: tokens.gradient,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: tokens.gradientStart.withValues(alpha: context.isDark ? 0.3 : 0.25),
-            blurRadius: 36,
-            offset: const Offset(0, 16),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: blanco.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(20),
+    // Frosted glass over the background photo.
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(28),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+        child: Container(
+          padding: const EdgeInsets.all(40),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [tokens.gradientStart.withValues(alpha: 0.55), tokens.sidebar.withValues(alpha: 0.45)],
             ),
-            child: const Icon(Icons.auto_stories_rounded, color: blanco, size: 32),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: blanco.withValues(alpha: 0.18)),
           ),
-          const SizedBox(height: 28),
-          const Text(
-            AppStrings.appName,
-            style: TextStyle(fontSize: 34, fontWeight: FontWeight.w800, color: blanco, height: 1.15),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            AppStrings.appTagline,
-            style: TextStyle(fontSize: 16, height: 1.5, color: blanco.withValues(alpha: 0.88)),
-          ),
-          const SizedBox(height: 32),
-          for (final (icono, texto) in _funciones)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 14),
-              child: Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: blanco.withValues(alpha: 0.14),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(icono, color: blanco, size: 19),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Text(
-                      texto,
-                      style: TextStyle(fontSize: 14.5, color: blanco.withValues(alpha: 0.92)),
-                    ),
-                  ),
-                ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: blanco.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(Icons.auto_stories_rounded, color: blanco, size: 32),
               ),
-            ),
-        ],
+              const SizedBox(height: 28),
+              const Text(
+                AppStrings.appName,
+                style: TextStyle(fontSize: 34, fontWeight: FontWeight.w800, color: blanco, height: 1.15),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                AppStrings.appTagline,
+                style: TextStyle(fontSize: 16, height: 1.5, color: blanco.withValues(alpha: 0.88)),
+              ),
+              const SizedBox(height: 32),
+              for (final (icono, texto) in _funciones)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: blanco.withValues(alpha: 0.14),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(icono, color: blanco, size: 19),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Text(texto, style: TextStyle(fontSize: 14.5, color: blanco.withValues(alpha: 0.92))),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -23,12 +23,15 @@ class AjustesScreen extends StatelessWidget {
     final tokens = context.tokens;
 
     Widget bloque(String titulo, List<Widget> hijos) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SectionHeader(title: titulo),
-            Card(clipBehavior: Clip.antiAlias, child: Column(children: hijos)),
-          ],
-        );
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionHeader(title: titulo),
+        Card(
+          clipBehavior: Clip.antiAlias,
+          child: Column(children: hijos),
+        ),
+      ],
+    );
 
     return Scaffold(
       appBar: const EncabezadoSeccion(titulo: 'Ajustes', subtitulo: 'Apariencia y cuenta', leading: VolverButton()),

@@ -7,13 +7,11 @@ import 'academico_service.dart';
 /// Evaluaciones y notas (`evaluaciones`). Cada evaluación guarda sus notas
 /// en el mapa `notas` ({estudianteId: nota}).
 class CalificacionesService {
-  CalificacionesService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  CalificacionesService({FirebaseFirestore? firestore}) : _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseFirestore _firestore;
 
-  CollectionReference<Map<String, dynamic>> get _evaluaciones =>
-      _firestore.collection('evaluaciones');
+  CollectionReference<Map<String, dynamic>> get _evaluaciones => _firestore.collection('evaluaciones');
 
   Stream<List<Evaluacion>> watchEvaluaciones(String uid) => _evaluaciones
       .where('docenteId', isEqualTo: uid)
@@ -50,10 +48,7 @@ class CalificacionesService {
   /// Reemplaza todas las notas de la evaluación.
   Future<void> guardarNotas(String evaluacionId, Map<String, double> notas) async {
     try {
-      await _evaluaciones.doc(evaluacionId).update({
-        'notas': notas,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+      await _evaluaciones.doc(evaluacionId).update({'notas': notas, 'updatedAt': FieldValue.serverTimestamp()});
     } on FirebaseException {
       throw const AcademicoFailure('No se pudieron guardar las notas.');
     }

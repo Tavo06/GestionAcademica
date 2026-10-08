@@ -15,12 +15,7 @@ String generateTemporaryPassword({int length = 32}) {
   const all = _lower + _upper + _digits + _symbols;
   String pick(String chars) => chars[random.nextInt(chars.length)];
 
-  final chars = [
-    pick(_lower),
-    pick(_upper),
-    pick(_digits),
-    pick(_symbols),
-    for (var i = 4; i < length; i++) pick(all),
-  ]..shuffle(random);
+  final chars = [pick(_lower), pick(_upper), pick(_digits), pick(_symbols), for (var i = 4; i < length; i++) pick(all)]
+    ..shuffle(random);
   return chars.join();
 }

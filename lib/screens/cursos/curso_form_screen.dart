@@ -3,12 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/data/catalogo_carreras.dart';
 import '../../core/logic/horario.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/formatters.dart';
 import '../../models/curso.dart';
 import '../../providers/academico_provider.dart';
 import '../../services/academico_service.dart';
+import '../../widgets/catalogo_cursos.dart';
 import '../../widgets/comunes.dart';
 import '../../widgets/dialogos.dart';
 import '../../widgets/encabezado.dart';
@@ -16,11 +18,13 @@ import '../../widgets/encabezado.dart';
 /// Formulario de curso. Sin [cursoId] crea un curso nuevo (con horario y
 /// sesiones); con [cursoId] edita sus datos descriptivos. Al guardar
 /// devuelve el [Curso] a la pantalla anterior con `context.pop(curso)`.
+/// Con [plantilla] (un curso del catálogo) llega con sus datos rellenados.
 class CursoFormScreen extends StatefulWidget {
   final String? cursoId;
   final Curso? curso;
+  final PlantillaCurso? plantilla;
 
-  const CursoFormScreen({super.key, this.cursoId, this.curso});
+  const CursoFormScreen({super.key, this.cursoId, this.curso, this.plantilla});
 
   @override
   State<CursoFormScreen> createState() => _CursoFormScreenState();
@@ -28,13 +32,16 @@ class CursoFormScreen extends StatefulWidget {
 
 class _CursoFormScreenState extends State<CursoFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  late final Curso? _original = widget.curso ??
-      (widget.cursoId == null ? null : context.read<AcademicoProvider>().cursoPorId(widget.cursoId!));
-  late final _codigoController = TextEditingController(text: _original?.codigo ?? '');
-  late final _nombreController = TextEditingController(text: _original?.nombre ?? '');
-  late final _descripcionController = TextEditingController(text: _original?.descripcion ?? '');
+  late final Curso? _original =
+      widget.curso ?? (widget.cursoId == null ? null : context.read<AcademicoProvider>().cursoPorId(widget.cursoId!));
+  late final _codigoController = TextEditingController(text: _original?.codigo ?? widget.plantilla?.curso.codigo ?? '');
+  late final _nombreController = TextEditingController(text: _original?.nombre ?? widget.plantilla?.curso.nombre ?? '');
+  late final _descripcionController = TextEditingController(
+    text: _original?.descripcion ?? widget.plantilla?.curso.descripcion ?? '',
+  );
   late final _sesionesController = TextEditingController(text: '$sesionesPorDefecto');
-  late int _creditos = _original?.creditos ?? 3;
+  late int _creditos = _original?.creditos ?? widget.plantilla?.curso.creditos ?? 3;
+  late String? _carrera = _original?.carrera ?? widget.plantilla?.carrera.nombre;
 
   final Set<int> _dias = {};
   HoraDia? _inicio;
@@ -64,6 +71,7 @@ class _CursoFormScreenState extends State<CursoFormScreen> {
       codigo: _codigoController.text,
       nombre: _nombreController.text,
       descripcion: _descripcionController.text,
+      carrera: _carrera,
       creditos: _creditos,
       totalSesiones: _totalSesiones,
       diasSemana: _dias.toList()..sort(),
@@ -83,10 +91,8 @@ class _CursoFormScreenState extends State<CursoFormScreen> {
       helpText: inicio ? 'Hora de inicio' : 'Hora de finalización',
       cancelText: 'Cancelar',
       confirmText: 'Aceptar',
-      builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-        child: child!,
-      ),
+      builder: (context, child) =>
+          MediaQuery(data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true), child: child!),
     );
     if (elegida == null) return;
     setState(() {
@@ -113,6 +119,25 @@ class _CursoFormScreenState extends State<CursoFormScreen> {
     if (elegida != null) setState(() => _fechaInicio = soloFecha(elegida));
   }
 
+  /// Rellena el formulario con un curso del catálogo.
+  Future<void> _usarCatalogo() async {
+    final academico = context.read<AcademicoProvider>();
+    final elegido = await showCatalogoCursos(
+      context,
+      codigosUsados: {for (final c in academico.cursos) c.codigo},
+      carreraInicial: _carrera,
+    );
+    if (elegido == null) return;
+    setState(() {
+      _codigoController.text = elegido.curso.codigo;
+      _nombreController.text = elegido.curso.nombre;
+      _descripcionController.text = elegido.curso.descripcion;
+      _creditos = elegido.curso.creditos;
+      _carrera = elegido.carrera.nombre;
+      _error = null;
+    });
+  }
+
   Future<void> _guardar() async {
     if (!_formKey.currentState!.validate()) return;
     final academico = context.read<AcademicoProvider>();
@@ -125,12 +150,15 @@ class _CursoFormScreenState extends State<CursoFormScreen> {
         _error = null;
       });
       try {
-        final editado = await academico.actualizarCurso(original.copyWith(
-          codigo: _codigoController.text.trim().toUpperCase(),
-          nombre: _nombreController.text.trim(),
-          descripcion: _descripcionController.text.trim(),
-          creditos: _creditos,
-        ));
+        final editado = await academico.actualizarCurso(
+          original.copyWith(
+            codigo: _codigoController.text.trim().toUpperCase(),
+            nombre: _nombreController.text.trim(),
+            descripcion: _descripcionController.text.trim(),
+            carrera: _carrera ?? '',
+            creditos: _creditos,
+          ),
+        );
         if (mounted) context.pop(editado);
       } on AcademicoFailure catch (e) {
         if (mounted) {
@@ -180,11 +208,8 @@ class _CursoFormScreenState extends State<CursoFormScreen> {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final datos = _datos;
-    final fechas = _editando ||
-            datos == null ||
-            _dias.isEmpty ||
-            _totalSesiones <= 0 ||
-            _totalSesiones > maxSesionesCurso
+    final fechas =
+        _editando || datos == null || _dias.isEmpty || _totalSesiones <= 0 || _totalSesiones > maxSesionesCurso
         ? const <DateTime>[]
         : datos.fechas;
 
@@ -213,7 +238,31 @@ class _CursoFormScreenState extends State<CursoFormScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      if (!_editando) ...[
+                        const SizedBox(height: 8),
+                        _CatalogoBanner(onTap: _guardando ? null : _usarCatalogo, carrera: _carrera),
+                      ],
                       const SectionHeader(title: 'Datos del curso'),
+                      DropdownButtonFormField<String>(
+                        initialValue: _carrera ?? '',
+                        isExpanded: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Carrera',
+                          prefixIcon: Icon(Icons.school_outlined),
+                        ),
+                        items: [
+                          const DropdownMenuItem(value: '', child: Text('Sin carrera')),
+                          for (final carrera in catalogoCarreras)
+                            DropdownMenuItem(value: carrera.nombre, child: Text(carrera.nombre)),
+                          // Una carrera que ya no está en el catálogo se conserva.
+                          if (_carrera != null && carreraPorNombre(_carrera) == null)
+                            DropdownMenuItem(value: _carrera, child: Text(_carrera!)),
+                        ],
+                        onChanged: _guardando
+                            ? null
+                            : (v) => setState(() => _carrera = v == null || v.isEmpty ? null : v),
+                      ),
+                      const SizedBox(height: 12),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -237,8 +286,7 @@ class _CursoFormScreenState extends State<CursoFormScreen> {
                                 labelText: 'Nombre del curso',
                                 hintText: 'Matemática I',
                               ),
-                              validator: (v) =>
-                                  v == null || v.trim().isEmpty ? 'Ingresa el nombre del curso.' : null,
+                              validator: (v) => v == null || v.trim().isEmpty ? 'Ingresa el nombre del curso.' : null,
                             ),
                           ),
                         ],
@@ -252,7 +300,10 @@ class _CursoFormScreenState extends State<CursoFormScreen> {
                         decoration: const InputDecoration(labelText: 'Descripción (opcional)'),
                       ),
                       const SizedBox(height: 8),
-                      Text('Créditos', style: TextStyle(fontWeight: FontWeight.w700, color: tokens.textPrimary)),
+                      Text(
+                        'Créditos',
+                        style: TextStyle(fontWeight: FontWeight.w700, color: tokens.textPrimary),
+                      ),
                       Row(
                         children: [
                           Expanded(
@@ -283,7 +334,8 @@ class _CursoFormScreenState extends State<CursoFormScreen> {
                                 InfoLine(icon: Icons.schedule_rounded, text: _original.horario),
                                 InfoLine(
                                   icon: Icons.event_note_rounded,
-                                  text: '${_original.totalSesiones} sesiones desde '
+                                  text:
+                                      '${_original.totalSesiones} sesiones desde '
                                       '${formatFechaCorta(_original.fechaInicio)}',
                                 ),
                                 const SizedBox(height: 8),
@@ -329,9 +381,9 @@ class _CursoFormScreenState extends State<CursoFormScreen> {
                                 onSelected: _guardando
                                     ? null
                                     : (sel) => setState(() {
-                                          sel ? _dias.add(entrada.key) : _dias.remove(entrada.key);
-                                          _error = null;
-                                        }),
+                                        sel ? _dias.add(entrada.key) : _dias.remove(entrada.key);
+                                        _error = null;
+                                      }),
                               ),
                           ],
                         ),
@@ -391,7 +443,10 @@ class _CursoFormScreenState extends State<CursoFormScreen> {
                       ],
                       if (_error != null) ...[
                         const SizedBox(height: 16),
-                        Text(_error!, style: TextStyle(color: tokens.error, fontWeight: FontWeight.w600)),
+                        Text(
+                          _error!,
+                          style: TextStyle(color: tokens.error, fontWeight: FontWeight.w600),
+                        ),
                       ],
                       const SizedBox(height: 24),
                       ElevatedButton.icon(
@@ -399,9 +454,7 @@ class _CursoFormScreenState extends State<CursoFormScreen> {
                         icon: _guardando
                             ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                             : const Icon(Icons.save_rounded),
-                        label: Text(
-                          _guardando ? 'Guardando...' : (_editando ? 'Guardar cambios' : 'Crear curso'),
-                        ),
+                        label: Text(_guardando ? 'Guardando...' : (_editando ? 'Guardar cambios' : 'Crear curso')),
                       ),
                     ],
                   ),
@@ -450,6 +503,53 @@ class _Selector extends StatelessWidget {
                   ],
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Acceso al catálogo de carreras en un curso nuevo.
+class _CatalogoBanner extends StatelessWidget {
+  final VoidCallback? onTap;
+  final String? carrera;
+
+  const _CatalogoBanner({required this.onTap, this.carrera});
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final color = carreraPorNombre(carrera)?.color ?? context.colors.primary;
+    return Material(
+      color: color.withValues(alpha: context.isDark ? 0.18 : 0.08),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              Icon(Icons.auto_stories_rounded, color: color),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Elegir del catálogo',
+                      style: TextStyle(fontWeight: FontWeight.w800, color: tokens.textPrimary),
+                    ),
+                    Text(
+                      '${catalogoCarreras.length} carreras con cursos listos para usar',
+                      style: TextStyle(fontSize: 12.5, color: tokens.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: color),
             ],
           ),
         ),

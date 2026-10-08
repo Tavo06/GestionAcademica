@@ -5,12 +5,7 @@ import 'package:semana5/core/logic/puntualidad.dart';
 import 'package:semana5/core/utils/formatters.dart';
 
 BloqueHorario _bloque(DateTime fecha, String inicio, String fin, [String clase = 'X']) =>
-    BloqueHorario(
-      fecha: fecha,
-      inicio: HoraDia.tryParse(inicio)!,
-      fin: HoraDia.tryParse(fin)!,
-      claseNombre: clase,
-    );
+    BloqueHorario(fecha: fecha, inicio: HoraDia.tryParse(inicio)!, fin: HoraDia.tryParse(fin)!, claseNombre: clase);
 
 void main() {
   group('LDI: faltas / total de sesiones del curso, desde 30%', () {
@@ -218,8 +213,10 @@ void main() {
 
     test('ventana para marcar entrada', () {
       expect(validarEntrada(inicio: inicio, fin: fin, ahora: DateTime(2026, 10, 12, 16, 30)), isNull);
-      expect(validarEntrada(inicio: inicio, fin: fin, ahora: DateTime(2026, 10, 12, 15, 30)),
-          'Podrás registrar tu entrada desde las 16:00.');
+      expect(
+        validarEntrada(inicio: inicio, fin: fin, ahora: DateTime(2026, 10, 12, 15, 30)),
+        'Podrás registrar tu entrada desde las 16:00.',
+      );
       expect(validarEntrada(inicio: inicio, fin: fin, ahora: DateTime(2026, 10, 12, 20)), isNotNull);
       expect(validarEntrada(inicio: inicio, fin: fin, ahora: DateTime(2026, 10, 13, 17)), isNotNull);
     });

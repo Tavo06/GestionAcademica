@@ -37,9 +37,7 @@ class _EvaluacionFormDialogState extends State<_EvaluacionFormDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nombreController = TextEditingController();
   late final int _usado = context.read<CalificacionesProvider>().pesoAsignado(widget.curso.id);
-  late final _pesoController = TextEditingController(
-    text: '${(pesoTotal - _usado).clamp(0, 20)}',
-  );
+  late final _pesoController = TextEditingController(text: '${(pesoTotal - _usado).clamp(0, 20)}');
   TipoEvaluacion _tipo = TipoEvaluacion.practica;
   DateTime _fecha = soloFecha(DateTime.now());
   bool _guardando = false;
@@ -70,13 +68,15 @@ class _EvaluacionFormDialogState extends State<_EvaluacionFormDialog> {
       _error = null;
     });
     try {
-      final creada = await context.read<CalificacionesProvider>().crearEvaluacion(NuevaEvaluacion(
-            cursoId: widget.curso.id,
-            nombre: _nombreController.text,
-            tipo: _tipo,
-            peso: int.parse(_pesoController.text),
-            fecha: _fecha,
-          ));
+      final creada = await context.read<CalificacionesProvider>().crearEvaluacion(
+        NuevaEvaluacion(
+          cursoId: widget.curso.id,
+          nombre: _nombreController.text,
+          tipo: _tipo,
+          peso: int.parse(_pesoController.text),
+          fecha: _fecha,
+        ),
+      );
       if (mounted) Navigator.of(context).pop(creada);
     } on AcademicoFailure catch (e) {
       if (mounted) {
@@ -114,9 +114,7 @@ class _EvaluacionFormDialogState extends State<_EvaluacionFormDialog> {
                 DropdownButtonFormField<TipoEvaluacion>(
                   initialValue: _tipo,
                   decoration: const InputDecoration(labelText: 'Tipo'),
-                  items: [
-                    for (final t in TipoEvaluacion.values) DropdownMenuItem(value: t, child: Text(t.etiqueta)),
-                  ],
+                  items: [for (final t in TipoEvaluacion.values) DropdownMenuItem(value: t, child: Text(t.etiqueta))],
                   onChanged: (t) => setState(() => _tipo = t ?? _tipo),
                 ),
                 const SizedBox(height: 12),
@@ -152,10 +150,7 @@ class _EvaluacionFormDialogState extends State<_EvaluacionFormDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: _guardando ? null : () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
-        ),
+        TextButton(onPressed: _guardando ? null : () => Navigator.of(context).pop(), child: const Text('Cancelar')),
         FilledButton(
           onPressed: _guardando || disponible <= 0 ? null : _guardar,
           child: _guardando

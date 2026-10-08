@@ -51,11 +51,7 @@ void main() {
     ResumenNotasCurso resumenPii() {
       final d = datosPrueba();
       final pii = d.cursos.firstWhere((c) => c.id == 'pii');
-      return calcularResumenNotas(
-        curso: pii,
-        evaluaciones: d.evaluaciones,
-        matriculados: d.estudiantes,
-      );
+      return calcularResumenNotas(curso: pii, evaluaciones: d.evaluaciones, matriculados: d.estudiantes);
     }
 
     test('promedio, condición y avance de cada estudiante', () {
@@ -103,24 +99,28 @@ void main() {
       cal.bindTeacher('A');
       await pumpEventQueue();
 
-      final ev = await cal.crearEvaluacion(NuevaEvaluacion(
-        cursoId: 'bd',
-        nombre: 'Proyecto final',
-        tipo: TipoEvaluacion.proyecto,
-        peso: 70,
-        fecha: DateTime(2026, 11, 30),
-      ));
+      final ev = await cal.crearEvaluacion(
+        NuevaEvaluacion(
+          cursoId: 'bd',
+          nombre: 'Proyecto final',
+          tipo: TipoEvaluacion.proyecto,
+          peso: 70,
+          fecha: DateTime(2026, 11, 30),
+        ),
+      );
       await pumpEventQueue();
       expect(ev.peso, 70);
       expect(cal.pesoAsignado('bd'), 70);
       await expectLater(
-        cal.crearEvaluacion(NuevaEvaluacion(
-          cursoId: 'bd',
-          nombre: 'Examen',
-          tipo: TipoEvaluacion.examen,
-          peso: 40,
-          fecha: DateTime(2026, 12, 1),
-        )),
+        cal.crearEvaluacion(
+          NuevaEvaluacion(
+            cursoId: 'bd',
+            nombre: 'Examen',
+            tipo: TipoEvaluacion.examen,
+            peso: 40,
+            fecha: DateTime(2026, 12, 1),
+          ),
+        ),
         throwsA(isA<AcademicoFailure>()),
       );
     });

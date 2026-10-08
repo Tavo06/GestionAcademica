@@ -35,9 +35,9 @@ class Sesion {
 
   /// La asistencia de la sesión como registros [Asistencia].
   List<Asistencia> get registros => [
-        for (final entrada in asistencias.entries)
-          Asistencia(estudianteId: entrada.key, sesionId: id, estado: entrada.value),
-      ];
+    for (final entrada in asistencias.entries)
+      Asistencia(estudianteId: entrada.key, sesionId: id, estado: entrada.value),
+  ];
 
   EstadoAsistencia? estadoDe(String estudianteId) => asistencias[estudianteId];
 
@@ -45,15 +45,15 @@ class Sesion {
   bool realizada(DateTime ahora) => asistencias.isNotEmpty || !fin.isAfter(ahora);
 
   Sesion copyWith({DateTime? fecha, Map<String, EstadoAsistencia>? asistencias}) => Sesion(
-        id: id,
-        docenteId: docenteId,
-        cursoId: cursoId,
-        numero: numero,
-        fecha: fecha ?? this.fecha,
-        horaInicio: horaInicio,
-        horaFin: horaFin,
-        asistencias: asistencias ?? this.asistencias,
-      );
+    id: id,
+    docenteId: docenteId,
+    cursoId: cursoId,
+    numero: numero,
+    fecha: fecha ?? this.fecha,
+    horaInicio: horaInicio,
+    horaFin: horaFin,
+    asistencias: asistencias ?? this.asistencias,
+  );
 
   factory Sesion.fromDoc(String id, Map<String, dynamic> data) {
     final fecha = data['fecha'];

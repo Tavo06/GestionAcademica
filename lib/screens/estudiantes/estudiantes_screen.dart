@@ -56,18 +56,20 @@ class _EstudiantesScreenState extends State<EstudiantesScreen> {
             final tokens = context.tokens;
             final todos = academico.estudiantes;
             if (todos.isEmpty) {
-              return PageList(children: [
-                EmptyState(
-                  icon: Icons.school_rounded,
-                  title: 'Sin estudiantes',
-                  message: 'Registra a tus estudiantes y luego matricúlalos en tus cursos.',
-                  action: FilledButton.icon(
-                    onPressed: _nuevo,
-                    icon: const Icon(Icons.person_add_alt_1_rounded),
-                    label: const Text('Nuevo estudiante'),
+              return PageList(
+                children: [
+                  EmptyState(
+                    icon: Icons.school_rounded,
+                    title: 'Sin estudiantes',
+                    message: 'Registra a tus estudiantes y luego matricúlalos en tus cursos.',
+                    action: FilledButton.icon(
+                      onPressed: _nuevo,
+                      icon: const Icon(Icons.person_add_alt_1_rounded),
+                      label: const Text('Nuevo estudiante'),
+                    ),
                   ),
-                ),
-              ]);
+                ],
+              );
             }
 
             final visibles = <Estudiante>[
@@ -117,10 +119,7 @@ class _EstudiantesScreenState extends State<EstudiantesScreen> {
                 for (final estudiante in visibles)
                   EstudianteTile(
                     estudiante: estudiante,
-                    detalle: [
-                      estudiante.codigo,
-                      if (estudiante.correo != null) estudiante.correo!,
-                    ].join(' · '),
+                    detalle: [estudiante.codigo, if (estudiante.correo != null) estudiante.correo!].join(' · '),
                     onTap: () => context.abrirEstudiante(estudiante),
                     extra: Wrap(
                       spacing: 6,

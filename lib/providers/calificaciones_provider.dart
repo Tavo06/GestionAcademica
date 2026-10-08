@@ -32,8 +32,7 @@ class NotasGuardadas {
 /// promedios del inicio, del curso, del estudiante y del reporte siempre
 /// coinciden.
 class CalificacionesProvider extends ChangeNotifier {
-  CalificacionesProvider(this._academico, {CalificacionesService? service})
-      : _serviceOverride = service {
+  CalificacionesProvider(this._academico, {CalificacionesService? service}) : _serviceOverride = service {
     _academico.addListener(_onAcademico);
   }
 
@@ -43,8 +42,8 @@ class CalificacionesProvider extends ChangeNotifier {
     this._academico, {
     List<Evaluacion> evaluaciones = const [],
     CalificacionesService? service,
-  })  : _serviceOverride = service,
-        _uid = 'test' {
+  }) : _serviceOverride = service,
+       _uid = 'test' {
     _setEvaluaciones(evaluaciones);
     _cargando = false;
     _academico.addListener(_onAcademico);
@@ -53,8 +52,7 @@ class CalificacionesProvider extends ChangeNotifier {
   final AcademicoProvider _academico;
   final CalificacionesService? _serviceOverride;
   CalificacionesService? _lazyService;
-  CalificacionesService get _service =>
-      _serviceOverride ?? (_lazyService ??= CalificacionesService());
+  CalificacionesService get _service => _serviceOverride ?? (_lazyService ??= CalificacionesService());
 
   StreamSubscription<List<Evaluacion>>? _sub;
   String? _uid;
@@ -71,17 +69,16 @@ class CalificacionesProvider extends ChangeNotifier {
   Evaluacion? evaluacionPorId(String id) => _porId[id];
 
   /// Evaluaciones de un curso, por fecha.
-  List<Evaluacion> evaluacionesDe(String cursoId) =>
-      _evaluaciones.where((e) => e.cursoId == cursoId).toList();
+  List<Evaluacion> evaluacionesDe(String cursoId) => _evaluaciones.where((e) => e.cursoId == cursoId).toList();
 
   /// Pesos (%) ya asignados en el curso.
   int pesoAsignado(String cursoId) => evaluacionesDe(cursoId).fold(0, (s, e) => s + e.peso);
 
   ResumenNotasCurso resumenDe(Curso curso) => calcularResumenNotas(
-        curso: curso,
-        evaluaciones: evaluacionesDe(curso.id),
-        matriculados: _academico.matriculadosEn(curso.id),
-      );
+    curso: curso,
+    evaluaciones: evaluacionesDe(curso.id),
+    matriculados: _academico.matriculadosEn(curso.id),
+  );
 
   PromedioEstudiante? promedioDe(String estudianteId, String cursoId) {
     final curso = _academico.cursoPorId(cursoId);
@@ -94,15 +91,12 @@ class CalificacionesProvider extends ChangeNotifier {
 
   /// Promedio del estudiante en cada curso donde está matriculado.
   List<PromedioEstudiante> promediosDeEstudiante(String estudianteId) => [
-        for (final curso in _academico.cursosDe(estudianteId))
-          ?promedioDe(estudianteId, curso.id),
-      ];
+    for (final curso in _academico.cursosDe(estudianteId)) ?promedioDe(estudianteId, curso.id),
+  ];
 
   /// Promedio de los promedios generales de los cursos con notas.
-  double? get promedioGeneral => promedioSimple([
-        for (final curso in _academico.cursos)
-          ?resumenDe(curso).promedioGeneral,
-      ]);
+  double? get promedioGeneral =>
+      promedioSimple([for (final curso in _academico.cursos) ?resumenDe(curso).promedioGeneral]);
 
   /// Estudiantes distintos desaprobados en al menos un curso.
   int get totalDesaprobados {
@@ -135,25 +129,31 @@ class CalificacionesProvider extends ChangeNotifier {
     _cargando = uid != null;
     notifyListeners();
     if (uid == null) return;
-    _sub = _service.watchEvaluaciones(uid).listen((datos) {
-      _setEvaluaciones(datos);
-      _cargando = false;
-      _error = null;
-      notifyListeners();
-    }, onError: (Object e) {
-      debugPrint('No se pudieron cargar las evaluaciones: $e');
-      _error = 'No se pudieron cargar las calificaciones.';
-      _cargando = false;
-      notifyListeners();
-    });
+    _sub = _service
+        .watchEvaluaciones(uid)
+        .listen(
+          (datos) {
+            _setEvaluaciones(datos);
+            _cargando = false;
+            _error = null;
+            notifyListeners();
+          },
+          onError: (Object e) {
+            debugPrint('No se pudieron cargar las evaluaciones: $e');
+            _error = 'No se pudieron cargar las calificaciones.';
+            _cargando = false;
+            notifyListeners();
+          },
+        );
   }
 
   void _setEvaluaciones(List<Evaluacion> datos) {
-    _evaluaciones = List.unmodifiable(List.of(datos)
-      ..sort((a, b) {
+    _evaluaciones = List.unmodifiable(
+      List.of(datos)..sort((a, b) {
         final porFecha = a.fecha.compareTo(b.fecha);
         return porFecha != 0 ? porFecha : a.nombre.compareTo(b.nombre);
-      }));
+      }),
+    );
     _porId = {for (final e in _evaluaciones) e.id: e};
   }
 
@@ -187,17 +187,14 @@ class CalificacionesProvider extends ChangeNotifier {
     );
   }
 
-  Future<void> eliminarEvaluacion(Evaluacion evaluacion) =>
-      _service.eliminarEvaluacion(evaluacion.id);
+  Future<void> eliminarEvaluacion(Evaluacion evaluacion) => _service.eliminarEvaluacion(evaluacion.id);
 
   /// Guarda las notas de una evaluación. Solo se guardan notas válidas de
   /// estudiantes matriculados; null deja al estudiante sin nota.
   Future<NotasGuardadas> guardarNotas(String evaluacionId, Map<String, double?> notas) async {
     final evaluacion = _porId[evaluacionId];
     if (evaluacion == null) throw const AcademicoFailure('La evaluación ya no existe.');
-    final matriculados = {
-      for (final e in _academico.matriculadosEn(evaluacion.cursoId)) e.id,
-    };
+    final matriculados = {for (final e in _academico.matriculadosEn(evaluacion.cursoId)) e.id};
     final limpias = <String, double>{};
     notas.forEach((estudianteId, nota) {
       if (nota == null || !matriculados.contains(estudianteId)) return;

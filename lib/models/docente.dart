@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../core/utils/texto.dart';
+import '../core/validators/validators.dart';
 
 /// Estado interno de la cuenta (`status` en Firestore). Nunca se muestra ni
 /// se edita en la app; las reglas solo dejan usar sus datos a docentes
@@ -17,6 +18,7 @@ class Docente {
   final String correo;
   final String dni;
   final String? telefono;
+  final DateTime? fechaNacimiento;
   final EstadoCuenta estado;
   final DateTime? fechaIngreso;
   final DateTime? fechaRegistro;
@@ -28,6 +30,7 @@ class Docente {
     required this.correo,
     this.dni = '',
     this.telefono,
+    this.fechaNacimiento,
     this.estado = EstadoCuenta.activo,
     this.fechaIngreso,
     this.fechaRegistro,
@@ -41,15 +44,14 @@ class Docente {
     return completo.isEmpty ? correo : completo;
   }
 
+  /// Años cumplidos hoy, o null si no registró su fecha de nacimiento.
+  int? get edad => fechaNacimiento == null ? null : edadEn(fechaNacimiento!, DateTime.now());
+
   /// Nombre para saludos.
   String get nombreVisible => nombre.isEmpty ? 'Docente' : nombre;
 
   /// Iniciales del nombre, o la primera letra del correo si aún no tiene.
-  String get iniciales => inicialesDe(
-        nombre,
-        apellidos,
-        respaldo: correo.isEmpty ? '?' : correo[0].toUpperCase(),
-      );
+  String get iniciales => inicialesDe(nombre, apellidos, respaldo: correo.isEmpty ? '?' : correo[0].toUpperCase());
 
   Docente copyWith({
     String? nombre,
@@ -57,22 +59,22 @@ class Docente {
     String? correo,
     String? dni,
     String? telefono,
+    DateTime? fechaNacimiento,
     DateTime? fechaIngreso,
-  }) =>
-      Docente(
-        uid: uid,
-        nombre: nombre ?? this.nombre,
-        apellidos: apellidos ?? this.apellidos,
-        correo: correo ?? this.correo,
-        dni: dni ?? this.dni,
-        telefono: telefono ?? this.telefono,
-        estado: estado,
-        fechaIngreso: fechaIngreso ?? this.fechaIngreso,
-        fechaRegistro: fechaRegistro,
-      );
+  }) => Docente(
+    uid: uid,
+    nombre: nombre ?? this.nombre,
+    apellidos: apellidos ?? this.apellidos,
+    correo: correo ?? this.correo,
+    dni: dni ?? this.dni,
+    telefono: telefono ?? this.telefono,
+    fechaNacimiento: fechaNacimiento ?? this.fechaNacimiento,
+    estado: estado,
+    fechaIngreso: fechaIngreso ?? this.fechaIngreso,
+    fechaRegistro: fechaRegistro,
+  );
 
-  static EstadoCuenta estadoDesde(String? valor) =>
-      valor == 'inactivo' ? EstadoCuenta.inactivo : EstadoCuenta.activo;
+  static EstadoCuenta estadoDesde(String? valor) => valor == 'inactivo' ? EstadoCuenta.inactivo : EstadoCuenta.activo;
 
   /// Lee un documento `users/{uid}`.
   factory Docente.fromFirestore(String uid, Map<String, dynamic> data) {
@@ -84,6 +86,7 @@ class Docente {
       correo: data['email'] as String? ?? '',
       dni: data['dni'] as String? ?? '',
       telefono: data['phone'] as String?,
+      fechaNacimiento: toDate(data['birthDate']),
       estado: estadoDesde(data['status'] as String?),
       fechaIngreso: toDate(data['hireDate']),
       fechaRegistro: toDate(data['createdAt']),

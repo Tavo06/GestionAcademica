@@ -98,10 +98,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: tokens.surfaceMuted,
-                  borderRadius: BorderRadius.circular(14),
-                ),
+                decoration: BoxDecoration(color: tokens.surfaceMuted, borderRadius: BorderRadius.circular(14)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -111,11 +108,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                       child: Text(
                         email,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: tokens.textPrimary,
-                        ),
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: tokens.textPrimary),
                       ),
                     ),
                   ],
@@ -149,11 +142,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
               OutlinedButton.icon(
                 onPressed: _isResending ? null : _handleResend,
                 icon: _isResending
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2.2),
-                      )
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2.2))
                     : const Icon(Icons.refresh_rounded, size: 20),
                 label: Text(_isResending ? 'Enviando...' : 'Reenviar correo'),
               ),

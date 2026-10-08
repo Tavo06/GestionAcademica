@@ -44,22 +44,24 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
               return LoadErrorView(message: academico.error!, onRetry: academico.reintentar);
             }
             if (academico.cursos.isEmpty) {
-              return PageList(children: [
-                EmptyState(
-                  icon: Icons.fact_check_rounded,
-                  title: 'Sin cursos',
-                  message: 'Crea un curso para generar sus sesiones y tomar asistencia.',
-                  action: FilledButton.icon(
-                    onPressed: () => context.crearCurso(),
-                    icon: const Icon(Icons.add_rounded),
-                    label: const Text('Nuevo curso'),
+              return PageList(
+                children: [
+                  EmptyState(
+                    icon: Icons.fact_check_rounded,
+                    title: 'Sin cursos',
+                    message: 'Crea un curso para generar sus sesiones y tomar asistencia.',
+                    action: FilledButton.icon(
+                      onPressed: () => context.crearCurso(),
+                      icon: const Icon(Icons.add_rounded),
+                      label: const Text('Nuevo curso'),
+                    ),
                   ),
-                ),
-              ]);
+                ],
+              );
             }
             final hoy = academico.sesionesDeHoy;
-            final curso = academico.cursoPorId(_cursoId ?? '') ??
-                (hoy.isNotEmpty ? hoy.first.curso : academico.cursos.first);
+            final curso =
+                academico.cursoPorId(_cursoId ?? '') ?? (hoy.isNotEmpty ? hoy.first.curso : academico.cursos.first);
             final resumen = academico.resumenDe(curso);
 
             return PageList(
@@ -112,10 +114,7 @@ class _AsistenciaScreenState extends State<AsistenciaScreen> {
                                 style: TextStyle(fontSize: 12.5, color: context.tokens.textSecondary),
                               ),
                             ),
-                            TextButton(
-                              onPressed: () => context.abrirReporte(curso),
-                              child: const Text('Ver reporte'),
-                            ),
+                            TextButton(onPressed: () => context.abrirReporte(curso), child: const Text('Ver reporte')),
                           ],
                         ),
                       ],

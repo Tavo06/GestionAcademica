@@ -7,6 +7,7 @@ import '../models/evaluacion.dart';
 import '../models/sesion.dart';
 import '../providers/academico_provider.dart';
 import '../providers/calificaciones_provider.dart';
+import '../widgets/catalogo_cursos.dart';
 
 /// Rutas nombradas de la app. Se navega por NOMBRE
 /// (`context.pushNamed(AppRoutes.cursoDetalle, ...)`), nunca escribiendo la
@@ -92,46 +93,35 @@ extension NavegacionAcademica on BuildContext {
   Future<void> abrirCurso(Curso curso) =>
       pushNamed(AppRoutes.cursoDetalle, queryParameters: {'id': curso.id}, extra: curso);
 
-  /// Devuelve el [Curso] creado, o null si se canceló.
-  Future<Curso?> crearCurso() => pushNamed<Curso>(AppRoutes.cursoNuevo);
+  /// Devuelve el [Curso] creado, o null si se canceló. Con [plantilla]
+  /// (un curso del catálogo) el formulario llega rellenado.
+  Future<Curso?> crearCurso({PlantillaCurso? plantilla}) => pushNamed<Curso>(AppRoutes.cursoNuevo, extra: plantilla);
 
   /// Devuelve el [Curso] con los cambios guardados, o null.
-  Future<Curso?> editarCurso(Curso curso) => pushNamed<Curso>(
-        AppRoutes.cursoEditar,
-        queryParameters: {'id': curso.id},
-        extra: curso,
-      );
+  Future<Curso?> editarCurso(Curso curso) =>
+      pushNamed<Curso>(AppRoutes.cursoEditar, queryParameters: {'id': curso.id}, extra: curso);
 
   Future<void> abrirEstudiante(Estudiante estudiante, {Curso? curso}) => pushNamed(
-        AppRoutes.estudianteDetalle,
-        queryParameters: {'id': estudiante.id, 'curso': ?curso?.id},
-        extra: estudiante,
-      );
+    AppRoutes.estudianteDetalle,
+    queryParameters: {'id': estudiante.id, 'curso': ?curso?.id},
+    extra: estudiante,
+  );
 
   /// Devuelve el [ResultadoMatricula] con las matrículas creadas, o null.
-  Future<ResultadoMatricula?> abrirMatricula({Curso? curso, Estudiante? estudiante}) =>
-      pushNamed<ResultadoMatricula>(
-        AppRoutes.matricula,
-        queryParameters: {'curso': ?curso?.id, 'estudiante': ?estudiante?.id},
-        extra: PreseleccionMatricula(curso: curso, estudiante: estudiante),
-      );
+  Future<ResultadoMatricula?> abrirMatricula({Curso? curso, Estudiante? estudiante}) => pushNamed<ResultadoMatricula>(
+    AppRoutes.matricula,
+    queryParameters: {'curso': ?curso?.id, 'estudiante': ?estudiante?.id},
+    extra: PreseleccionMatricula(curso: curso, estudiante: estudiante),
+  );
 
   /// Devuelve las [NotasGuardadas], o null si se salió sin guardar.
   Future<NotasGuardadas?> abrirRegistroNotas(Evaluacion evaluacion) =>
-      pushNamed<NotasGuardadas>(
-        AppRoutes.registroNotas,
-        queryParameters: {'id': evaluacion.id},
-        extra: evaluacion,
-      );
+      pushNamed<NotasGuardadas>(AppRoutes.registroNotas, queryParameters: {'id': evaluacion.id}, extra: evaluacion);
 
   Future<void> abrirReporte(Curso curso) =>
       pushNamed(AppRoutes.reporte, queryParameters: {'curso': curso.id}, extra: curso);
 
   /// Devuelve la [AsistenciaGuardada], o null si se salió sin guardar.
   Future<AsistenciaGuardada?> abrirTomaAsistencia(Sesion sesion) =>
-      pushNamed<AsistenciaGuardada>(
-        AppRoutes.tomaAsistencia,
-        queryParameters: {'id': sesion.id},
-        extra: sesion,
-      );
+      pushNamed<AsistenciaGuardada>(AppRoutes.tomaAsistencia, queryParameters: {'id': sesion.id}, extra: sesion);
 }

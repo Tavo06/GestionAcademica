@@ -77,13 +77,15 @@ class _CalificacionesScreenState extends State<CalificacionesScreen> {
               return LoadErrorView(message: calificaciones.error!, onRetry: calificaciones.reintentar);
             }
             if (academico.cursos.isEmpty) {
-              return const PageList(children: [
-                EmptyState(
-                  icon: Icons.grade_rounded,
-                  title: 'Sin cursos',
-                  message: 'Crea un curso y matricula estudiantes para registrar sus notas.',
-                ),
-              ]);
+              return const PageList(
+                children: [
+                  EmptyState(
+                    icon: Icons.grade_rounded,
+                    title: 'Sin cursos',
+                    message: 'Crea un curso y matricula estudiantes para registrar sus notas.',
+                  ),
+                ],
+              );
             }
             final curso = academico.cursoPorId(_cursoId ?? '') ?? academico.cursos.first;
             final resumen = calificaciones.resumenDe(curso);
@@ -123,10 +125,7 @@ class _CalificacionesScreenState extends State<CalificacionesScreen> {
                   ),
                 ),
                 if (resumen.evaluaciones.isEmpty)
-                  Text(
-                    'Este curso aún no tiene evaluaciones.',
-                    style: TextStyle(color: context.tokens.textSecondary),
-                  )
+                  Text('Este curso aún no tiene evaluaciones.', style: TextStyle(color: context.tokens.textSecondary))
                 else
                   AdaptiveGrid(
                     minAncho: 240,
@@ -256,7 +255,10 @@ class _EvaluacionCard extends StatelessWidget {
                 ),
               ],
             ),
-            Text(evaluacion.nombre, style: TextStyle(fontWeight: FontWeight.w800, color: tokens.textPrimary)),
+            Text(
+              evaluacion.nombre,
+              style: TextStyle(fontWeight: FontWeight.w800, color: tokens.textPrimary),
+            ),
             Text(formatFechaLarga(evaluacion.fecha), style: TextStyle(fontSize: 12.5, color: tokens.textSecondary)),
             const SizedBox(height: 8),
             Row(

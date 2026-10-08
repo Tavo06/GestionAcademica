@@ -45,9 +45,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       _error = null;
     });
     try {
-      await context.read<AuthProvider>().createPassword(
-            _newPasswordController.text,
-          );
+      await context.read<AuthProvider>().createPassword(_newPasswordController.text);
       // Keep the loading state: the router shows /registration-complete
       // as soon as the password is saved.
     } on AuthFailure catch (e) {
@@ -60,10 +58,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   Widget _toggle(bool oculta, VoidCallback onPressed) => IconButton(
-        tooltip: oculta ? 'Mostrar contraseña' : 'Ocultar contraseña',
-        icon: Icon(oculta ? Icons.visibility_outlined : Icons.visibility_off_outlined),
-        onPressed: onPressed,
-      );
+    tooltip: oculta ? 'Mostrar contraseña' : 'Ocultar contraseña',
+    icon: Icon(oculta ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+    onPressed: onPressed,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -126,24 +124,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     context,
                     label: 'Confirmar contraseña',
                     icon: Icons.lock_reset_rounded,
-                    suffixIcon: _toggle(
-                      _obscureConfirm,
-                      () => setState(() => _obscureConfirm = !_obscureConfirm),
-                    ),
+                    suffixIcon: _toggle(_obscureConfirm, () => setState(() => _obscureConfirm = !_obscureConfirm)),
                   ),
-                  validator: (value) => Validators.confirmPassword(
-                    value,
-                    _newPasswordController.text,
-                  ),
+                  validator: (value) => Validators.confirmPassword(value, _newPasswordController.text),
                 ),
                 AnimatedSize(
                   duration: const Duration(milliseconds: 180),
                   child: _error == null
                       ? const SizedBox(width: double.infinity)
-                      : Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: AuthMessage(_error!),
-                        ),
+                      : Padding(padding: const EdgeInsets.only(top: 16), child: AuthMessage(_error!)),
                 ),
                 const SizedBox(height: 24),
                 AuthPrimaryButton(
@@ -185,9 +174,7 @@ class _Requisitos extends StatelessWidget {
     return Wrap(
       spacing: 14,
       runSpacing: 6,
-      children: [
-        for (final (texto, cumple) in requisitos) _Requisito(texto: texto, cumple: cumple),
-      ],
+      children: [for (final (texto, cumple) in requisitos) _Requisito(texto: texto, cumple: cumple)],
     );
   }
 }

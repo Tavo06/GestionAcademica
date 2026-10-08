@@ -1,0 +1,6 @@
+# Indicar a GitHub que ignore la carpeta web para las estadísticas
+web/* linguist-documentation
+web/**/* linguist-documentation
+
+# Forzar a que los archivos .dart se cuenten como el lenguaje principal
+*.dart linguist-detectable=true

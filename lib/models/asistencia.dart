@@ -28,9 +28,5 @@ class Asistencia {
   final String sesionId;
   final EstadoAsistencia estado;
 
-  const Asistencia({
-    required this.estudianteId,
-    required this.sesionId,
-    required this.estado,
-  });
+  const Asistencia({required this.estudianteId, required this.sesionId, required this.estado});
 }

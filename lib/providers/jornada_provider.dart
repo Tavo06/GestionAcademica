@@ -13,8 +13,8 @@ import '../services/jornada_service.dart';
 /// Lo comparten Inicio, Jornada e Historial.
 class JornadaProvider extends ChangeNotifier {
   JornadaProvider({JornadaService? service, DateTime Function()? reloj})
-      : _serviceOverride = service,
-        _reloj = reloj ?? DateTime.now;
+    : _serviceOverride = service,
+      _reloj = reloj ?? DateTime.now;
 
   final JornadaService? _serviceOverride;
   final DateTime Function() _reloj;
@@ -58,17 +58,22 @@ class JornadaProvider extends ChangeNotifier {
     _cargando = uid != null;
     notifyListeners();
     if (uid == null) return;
-    _sub = _service.watchJornadas(uid).listen((datos) {
-      _set(datos);
-      _cargando = false;
-      _error = null;
-      notifyListeners();
-    }, onError: (Object e) {
-      debugPrint('No se pudieron cargar las jornadas: $e');
-      _error = 'No se pudieron cargar tus jornadas.';
-      _cargando = false;
-      notifyListeners();
-    });
+    _sub = _service
+        .watchJornadas(uid)
+        .listen(
+          (datos) {
+            _set(datos);
+            _cargando = false;
+            _error = null;
+            notifyListeners();
+          },
+          onError: (Object e) {
+            debugPrint('No se pudieron cargar las jornadas: $e');
+            _error = 'No se pudieron cargar tus jornadas.';
+            _cargando = false;
+            notifyListeners();
+          },
+        );
   }
 
   void _set(List<Jornada> datos) {

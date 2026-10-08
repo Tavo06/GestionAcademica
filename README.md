@@ -21,6 +21,7 @@ lib/
 │   └── main_shell.dart       Menú lateral (escritorio) / barra inferior + "Más" (móvil)
 ├── core/
 │   ├── constants/            Nombre y versión de la app
+│   ├── data/                 Catálogo: 10 carreras con 10 cursos cada una
 │   ├── logic/                Reglas en Dart puro: notas, LDI, horario, puntualidad
 │   ├── theme/                Paleta y tema Material 3 (claro y oscuro)
 │   ├── utils/                Formatos (fechas, notas, %) y texto
@@ -43,6 +44,8 @@ lib/
     ├── comunes.dart          PageList, AdaptiveGrid, StatTile, EmptyState, …
     ├── encabezado.dart       EncabezadoSeccion y BannerDestacado (Stack)
     ├── academicos.dart       CursoCard, EstudianteTile, NotaBadge, SesionTile, …
+    ├── calendario.dart       Calendario mensual propio (agenda y filtro por fechas)
+    ├── catalogo_cursos.dart  Selector del catálogo de carreras y cursos
     └── dialogos.dart         Diálogos compartidos
 ```
 
@@ -57,14 +60,14 @@ lib/
 | **Estructuras repetitivas** | `for` en `promedioPonderado()`, `do-while` en `sugerirCodigoEstudiante()`, `while` en `generarFechasSesiones()` |
 | **List** | Listas de cursos, estudiantes, matrículas y el ranking (`ResumenNotasCurso.ranking`) |
 | **Map** | Notas `{estudianteId: nota}` en `Evaluacion`, asistencia en `Sesion`, conteo por curso en `matriculas_screen.dart`, índices en `AcademicoProvider` |
-| **Set** | Selección de estudiantes en `matricula_screen.dart`, `AcademicoProvider.matricular()` (sin duplicados), `totalEnLdi` |
+| **Set** | Carreras del filtro en `cursos_screen.dart`, códigos ya creados en el catálogo, selección de estudiantes en `matricula_screen.dart`, `AcademicoProvider.matricular()` (sin duplicados), `totalEnLdi` |
 | **Widgets reutilizables** | `widgets/` (CursoCard, EstudianteTile, NotaBadge, BannerDestacado, StatTile, …) |
 | **StatelessWidget + StatefulWidget** | Stateless: `InicioScreen`, `ReporteScreen`, `CursoCard`. Stateful: `CursosScreen`, `MatriculaScreen`, `RegistroNotasScreen`, … |
 | **Container, Row, Column, Stack** | `BannerDestacado` y `EncabezadoSeccion` (círculos e insignia con `Stack`/`Positioned`), `_Distribucion` del reporte, `EmptyState`, vista previa del tema en Ajustes |
 | **Rutas nombradas** | `app/app_routes.dart` + `app/router.dart`; se navega con `context.pushNamed(AppRoutes.…)` |
 | **Listado, detalle, matrícula y reporte** | `cursos_screen.dart` → `curso_detalle_screen.dart` → `matricula_screen.dart` → `reporte_screen.dart` |
-| **Enviar y recibir objetos entre pantallas** | `NavegacionAcademica` en `app_routes.dart`: se envía el `Curso`/`Estudiante`/`Evaluacion` en `extra`; la matrícula devuelve `ResultadoMatricula`, el registro de notas devuelve `NotasGuardadas`, el formulario de curso devuelve el `Curso` |
-| **setState() en filtros y formularios** | Búsqueda/filtro/orden en `cursos_screen.dart`, `estudiantes_screen.dart`, `matriculas_screen.dart`; formularios en `registro_notas_screen.dart`, `curso_form_screen.dart`, `matricula_screen.dart` |
+| **Enviar y recibir objetos entre pantallas** | `NavegacionAcademica` en `app_routes.dart`: se envía el `Curso`/`Estudiante`/`Evaluacion` en `extra`; el catálogo envía la `PlantillaCurso` al formulario de curso, la matrícula devuelve `ResultadoMatricula`, el registro de notas devuelve `NotasGuardadas`, el formulario de curso devuelve el `Curso` |
+| **setState() en filtros y formularios** | Vista agenda/lista, día y rango en `historial_screen.dart`; carrera elegida en `catalogo_cursos.dart`; búsqueda/filtro/orden en `cursos_screen.dart`, `estudiantes_screen.dart`, `matriculas_screen.dart`; formularios en `registro_notas_screen.dart`, `curso_form_screen.dart`, `matricula_screen.dart` |
 | **Provider, ChangeNotifier, Consumer** | `app/app.dart` (`MultiProvider`), `providers/`; `Consumer2<AcademicoProvider, CalificacionesProvider>` en Inicio, Cursos, Calificaciones y Reportes |
 | **Compartir cursos, estudiantes y promedios** | `AcademicoProvider` (cursos/estudiantes) y `CalificacionesProvider` (promedios), usados en Inicio, Cursos, Estudiantes, Calificaciones y Reportes |
 | **Material Design 3 con estilos propios** | `core/theme/app_theme.dart` (`useMaterial3`, paleta verde azulado + terracota, Outfit + DM Sans, botones píldora) |
@@ -83,13 +86,19 @@ lib/
 - **LDI:** faltas / total de sesiones del curso ≥ 30 % → el estudiante queda
   bloqueado en ese curso desde la sesión siguiente.
 - **Jornada:** una entrada y una salida por sesión, con hora del servidor.
+  El historial tiene una **agenda** (calendario con puntos por día:
+  completada, sin salida, programada, sin registro) y una lista filtrable.
+- **Catálogo:** 10 carreras con 10 cursos predeterminados; al elegir uno
+  el formulario de curso llega rellenado (código, nombre, créditos,
+  descripción y carrera).
+- **Registro:** pide fecha de nacimiento (mayor de 18 años).
 
 ## Firestore
 
 | Colección | Contenido |
 |---|---|
-| `users/{uid}` | Perfil del docente: `firstName`, `lastName`, `dni`, `phone` (verificado por SMS), `email`, `role: docente`, `status` |
-| `cursos/{id}` | `docenteId`, `codigo`, `nombre`, `descripcion`, `creditos`, `totalSesiones`, `diasSemana`, `horaInicio`, `horaFin`, `fechaInicio` |
+| `users/{uid}` | Perfil del docente: `firstName`, `lastName`, `dni`, `birthDate`, `phone` (verificado por SMS), `email`, `role: docente`, `status` |
+| `cursos/{id}` | `docenteId`, `codigo`, `nombre`, `descripcion`, `carrera`, `creditos`, `totalSesiones`, `diasSemana`, `horaInicio`, `horaFin`, `fechaInicio` |
 | `sesiones/{id}` | `docenteId`, `cursoId`, `numero`, `fecha`, horario y `asistencias` `{estudianteId: presente/tarde/falta}` |
 | `estudiantes/{id}` | `docenteId`, `codigo`, `nombres`, `apellidos`, `correo` |
 | `matriculas/{cursoId}_{estudianteId}` | `docenteId`, `cursoId`, `estudianteId`, `fecha`, `estado` (activa/retirada) |

@@ -36,8 +36,7 @@ class HoraDia implements Comparable<HoraDia> {
   int get hashCode => minutos.hashCode;
 
   @override
-  String toString() =>
-      '${hora.toString().padLeft(2, '0')}:${minuto.toString().padLeft(2, '0')}';
+  String toString() => '${hora.toString().padLeft(2, '0')}:${minuto.toString().padLeft(2, '0')}';
 }
 
 DateTime soloFecha(DateTime d) => DateTime(d.year, d.month, d.day);
@@ -92,9 +91,7 @@ class BloqueHorario {
   /// Same day and the times overlap. Touching blocks (one ends exactly when
   /// the other starts) do not overlap.
   bool seCruzaCon(BloqueHorario otro) =>
-      soloFecha(fecha) == soloFecha(otro.fecha) &&
-      inicio < otro.fin &&
-      otro.inicio < fin;
+      soloFecha(fecha) == soloFecha(otro.fecha) && inicio < otro.fin && otro.inicio < fin;
 }
 
 /// First pair (new block, existing block) that overlaps, or null.
@@ -129,11 +126,9 @@ SemanaSesion semanaDe(DateTime fechaSesion, DateTime hoy) {
 }
 
 /// Only sessions of the current week can change their date.
-bool puedeEditarFecha(DateTime fechaSesion, DateTime hoy) =>
-    semanaDe(fechaSesion, hoy) == SemanaSesion.actual;
+bool puedeEditarFecha(DateTime fechaSesion, DateTime hoy) => semanaDe(fechaSesion, hoy) == SemanaSesion.actual;
 
 /// Attendance is taken in the current week, up to today (future sessions
 /// stay pending; past weeks are closed).
 bool puedeRegistrarAsistencia(DateTime fechaSesion, DateTime hoy) =>
-    semanaDe(fechaSesion, hoy) == SemanaSesion.actual &&
-    !soloFecha(fechaSesion).isAfter(soloFecha(hoy));
+    semanaDe(fechaSesion, hoy) == SemanaSesion.actual && !soloFecha(fechaSesion).isAfter(soloFecha(hoy));

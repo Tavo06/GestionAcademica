@@ -70,9 +70,7 @@ class _MatriculaScreenState extends State<MatriculaScreen> {
       );
     } else {
       final visibles = academico.estudiantes.where((e) => e.coincide(_busqueda)).toList();
-      final nuevos = curso == null
-          ? 0
-          : _seleccion.where((id) => !academico.estaMatriculado(curso.id, id)).length;
+      final nuevos = curso == null ? 0 : _seleccion.where((id) => !academico.estaMatriculado(curso.id, id)).length;
       cuerpo = Column(
         children: [
           Expanded(
@@ -83,13 +81,13 @@ class _MatriculaScreenState extends State<MatriculaScreen> {
                   key: ValueKey(_cursoId),
                   initialValue: curso?.id,
                   isExpanded: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Curso',
-                    prefixIcon: Icon(Icons.menu_book_outlined),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Curso', prefixIcon: Icon(Icons.menu_book_outlined)),
                   items: [
                     for (final c in academico.cursos)
-                      DropdownMenuItem(value: c.id, child: Text(c.titulo, overflow: TextOverflow.ellipsis)),
+                      DropdownMenuItem(
+                        value: c.id,
+                        child: Text(c.titulo, overflow: TextOverflow.ellipsis),
+                      ),
                   ],
                   onChanged: _guardando ? null : (id) => setState(() => _cursoId = id),
                 ),
@@ -102,28 +100,27 @@ class _MatriculaScreenState extends State<MatriculaScreen> {
                   ),
                 ],
                 const SectionHeader(title: '2. Estudiantes'),
-                BuscadorField(
-                  hint: 'Buscar estudiante',
-                  onChanged: (v) => setState(() => _busqueda = v),
-                ),
+                BuscadorField(hint: 'Buscar estudiante', onChanged: (v) => setState(() => _busqueda = v)),
                 const SizedBox(height: 8),
                 Card(
                   clipBehavior: Clip.antiAlias,
                   child: Column(
                     children: [
                       for (final e in visibles)
-                        Builder(builder: (context) {
-                          final yaEsta = curso != null && academico.estaMatriculado(curso.id, e.id);
-                          return CheckboxListTile(
-                            value: yaEsta || _seleccion.contains(e.id),
-                            onChanged: yaEsta || _guardando
-                                ? null
-                                : (v) => setState(() => v == true ? _seleccion.add(e.id) : _seleccion.remove(e.id)),
-                            controlAffinity: ListTileControlAffinity.leading,
-                            title: Text(e.nombreVisible),
-                            subtitle: Text(yaEsta ? '${e.codigo} · ya matriculado' : e.codigo),
-                          );
-                        }),
+                        Builder(
+                          builder: (context) {
+                            final yaEsta = curso != null && academico.estaMatriculado(curso.id, e.id);
+                            return CheckboxListTile(
+                              value: yaEsta || _seleccion.contains(e.id),
+                              onChanged: yaEsta || _guardando
+                                  ? null
+                                  : (v) => setState(() => v == true ? _seleccion.add(e.id) : _seleccion.remove(e.id)),
+                              controlAffinity: ListTileControlAffinity.leading,
+                              title: Text(e.nombreVisible),
+                              subtitle: Text(yaEsta ? '${e.codigo} · ya matriculado' : e.codigo),
+                            );
+                          },
+                        ),
                       if (visibles.isEmpty)
                         Padding(
                           padding: const EdgeInsets.all(24),
@@ -137,7 +134,10 @@ class _MatriculaScreenState extends State<MatriculaScreen> {
                 ),
                 if (_error != null) ...[
                   const SizedBox(height: 12),
-                  Text(_error!, style: TextStyle(color: tokens.error, fontWeight: FontWeight.w600)),
+                  Text(
+                    _error!,
+                    style: TextStyle(color: tokens.error, fontWeight: FontWeight.w600),
+                  ),
                 ],
               ],
             ),
@@ -163,8 +163,8 @@ class _MatriculaScreenState extends State<MatriculaScreen> {
                       curso == null
                           ? 'Elige un curso'
                           : nuevos == 0
-                              ? 'Marca al menos un estudiante'
-                              : 'Matricular $nuevos ${nuevos == 1 ? 'estudiante' : 'estudiantes'}',
+                          ? 'Marca al menos un estudiante'
+                          : 'Matricular $nuevos ${nuevos == 1 ? 'estudiante' : 'estudiantes'}',
                     ),
                   ),
                 ),

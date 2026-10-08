@@ -53,20 +53,19 @@ class Evaluacion {
 
   /// Las notas como registros [Calificacion].
   List<Calificacion> get calificaciones => [
-        for (final entrada in notas.entries)
-          Calificacion(evaluacionId: id, estudianteId: entrada.key, nota: entrada.value),
-      ];
+    for (final entrada in notas.entries) Calificacion(evaluacionId: id, estudianteId: entrada.key, nota: entrada.value),
+  ];
 
   Evaluacion copyWith({Map<String, double>? notas}) => Evaluacion(
-        id: id,
-        docenteId: docenteId,
-        cursoId: cursoId,
-        nombre: nombre,
-        tipo: tipo,
-        peso: peso,
-        fecha: fecha,
-        notas: notas ?? this.notas,
-      );
+    id: id,
+    docenteId: docenteId,
+    cursoId: cursoId,
+    nombre: nombre,
+    tipo: tipo,
+    peso: peso,
+    fecha: fecha,
+    notas: notas ?? this.notas,
+  );
 
   factory Evaluacion.fromDoc(String id, Map<String, dynamic> data) {
     final fecha = data['fecha'];

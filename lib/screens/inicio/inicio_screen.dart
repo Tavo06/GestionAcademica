@@ -68,10 +68,8 @@ class InicioScreen extends StatelessWidget {
                       const SizedBox(height: 6),
                       Text(
                         '${saludoPara(ahora)}, ${docente.nombreVisible}',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 16),
                       Wrap(
@@ -166,10 +164,7 @@ class InicioScreen extends StatelessWidget {
                     for (final item in hoy) _ClaseHoy(curso: item.curso, sesion: item.sesion),
                   const SectionHeader(title: 'Rendimiento por curso'),
                   if (academico.cursos.isEmpty)
-                    Text(
-                      'Aún no hay cursos.',
-                      style: TextStyle(color: tokens.textSecondary),
-                    )
+                    Text('Aún no hay cursos.', style: TextStyle(color: tokens.textSecondary))
                   else
                     for (final curso in academico.cursos)
                       _RendimientoCurso(
@@ -287,7 +282,10 @@ class _RendimientoCurso extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(curso.titulo, style: TextStyle(fontWeight: FontWeight.w800, color: tokens.textPrimary)),
+                      Text(
+                        curso.titulo,
+                        style: TextStyle(fontWeight: FontWeight.w800, color: tokens.textPrimary),
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         '$matriculados matriculados · asistencia ${formatPorcentaje(asistencia)}',

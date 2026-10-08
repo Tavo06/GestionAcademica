@@ -16,13 +16,7 @@ class EncabezadoSeccion extends StatelessWidget implements PreferredSizeWidget {
   final Widget? leading;
   final List<Widget>? acciones;
 
-  const EncabezadoSeccion({
-    super.key,
-    required this.titulo,
-    this.subtitulo,
-    this.leading,
-    this.acciones,
-  });
+  const EncabezadoSeccion({super.key, required this.titulo, this.subtitulo, this.leading, this.acciones});
 
   static const double _alto = 76;
 
@@ -68,20 +62,15 @@ class EncabezadoSeccion extends StatelessWidget implements PreferredSizeWidget {
                               titulo,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
                             ),
                             if (subtitulo != null)
                               Text(
                                 subtitulo,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 12.5,
-                                  color: Colors.white.withValues(alpha: 0.82),
-                                ),
+                                style: TextStyle(fontSize: 12.5, color: Colors.white.withValues(alpha: 0.82)),
                               ),
                           ],
                         ),
@@ -108,10 +97,10 @@ class _Circulo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: diametro,
-        height: diametro,
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      );
+    width: diametro,
+    height: diametro,
+    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+  );
 }
 
 /// Tarjeta destacada (inicio, detalle de curso o estudiante, reporte):
@@ -131,10 +120,7 @@ class BannerDestacado extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: tokens.gradient,
-            borderRadius: BorderRadius.circular(16),
-          ),
+          decoration: BoxDecoration(gradient: tokens.gradient, borderRadius: BorderRadius.circular(16)),
           clipBehavior: Clip.antiAlias,
           child: Stack(
             children: [
@@ -188,10 +174,7 @@ class Insignia extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icono != null) ...[
-            Icon(icono, size: 14, color: Colors.black87),
-            const SizedBox(width: 4),
-          ],
+          if (icono != null) ...[Icon(icono, size: 14, color: Colors.black87), const SizedBox(width: 4)],
           Text(
             texto,
             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Colors.black87),
@@ -216,10 +199,7 @@ class DatoBanner extends StatelessWidget {
       children: [
         Text(
           valor,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
         ),
         Text(etiqueta, style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.85))),
       ],
@@ -295,11 +275,7 @@ class CuentaMenuButton extends StatelessWidget {
         ),
         const PopupMenuItem(
           value: 'ajustes',
-          child: ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: Icon(Icons.tune_rounded),
-            title: Text('Ajustes'),
-          ),
+          child: ListTile(contentPadding: EdgeInsets.zero, leading: Icon(Icons.tune_rounded), title: Text('Ajustes')),
         ),
         PopupMenuItem(
           value: 'salir',

@@ -17,12 +17,12 @@ class HorarioNoDisponible extends AcademicoFailure {
   final BloqueHorario existente;
 
   HorarioNoDisponible(this.existente)
-      : super(
-          'Ya tienes un curso programado el '
-          '${diasSemanaNombres[existente.fecha.weekday]!.toLowerCase()} '
-          '${formatFechaCorta(existente.fecha)} de ${existente.inicio} a '
-          '${existente.fin} (${existente.claseNombre}).',
-        );
+    : super(
+        'Ya tienes un curso programado el '
+        '${diasSemanaNombres[existente.fecha.weekday]!.toLowerCase()} '
+        '${formatFechaCorta(existente.fecha)} de ${existente.inicio} a '
+        '${existente.fin} (${existente.claseNombre}).',
+      );
 }
 
 /// Resultado de guardar la asistencia de una sesión.
@@ -52,8 +52,8 @@ class ResultadoMatricula {
 /// todas las pantallas que lo muestran.
 class AcademicoProvider extends ChangeNotifier {
   AcademicoProvider({AcademicoService? service, DateTime Function()? reloj})
-      : _serviceOverride = service,
-        _reloj = reloj ?? DateTime.now;
+    : _serviceOverride = service,
+      _reloj = reloj ?? DateTime.now;
 
   /// Estado precargado sin Firestore, para las pruebas de widgets.
   @visibleForTesting
@@ -64,9 +64,9 @@ class AcademicoProvider extends ChangeNotifier {
     List<Matricula> matriculas = const [],
     DateTime Function()? reloj,
     AcademicoService? service,
-  })  : _serviceOverride = service,
-        _reloj = reloj ?? DateTime.now,
-        _uid = 'test' {
+  }) : _serviceOverride = service,
+       _reloj = reloj ?? DateTime.now,
+       _uid = 'test' {
     _cursosCrudos = cursos;
     _estudiantesCrudos = estudiantes;
     _sesionesCrudas = sesiones;
@@ -130,8 +130,7 @@ class AcademicoProvider extends ChangeNotifier {
   /// Sesiones de un curso, por número.
   List<Sesion> sesionesDe(String cursoId) => _sesionesPorCurso[cursoId] ?? const [];
 
-  Matricula? matriculaDe(String cursoId, String estudianteId) =>
-      _matriculasPorId[matriculaId(cursoId, estudianteId)];
+  Matricula? matriculaDe(String cursoId, String estudianteId) => _matriculasPorId[matriculaId(cursoId, estudianteId)];
 
   bool estaMatriculado(String cursoId, String estudianteId) =>
       _activosPorCurso[cursoId]?.contains(estudianteId) ?? false;
@@ -143,19 +142,18 @@ class AcademicoProvider extends ChangeNotifier {
   }
 
   /// Cursos donde el estudiante tiene matrícula activa.
-  List<Curso> cursosDe(String estudianteId) =>
-      _cursos.where((c) => estaMatriculado(c.id, estudianteId)).toList();
+  List<Curso> cursosDe(String estudianteId) => _cursos.where((c) => estaMatriculado(c.id, estudianteId)).toList();
 
   /// Matrículas (activas y retiradas) de un estudiante.
   List<Matricula> matriculasDeEstudiante(String estudianteId) =>
       _matriculas.where((m) => m.estudianteId == estudianteId).toList();
 
   ResumenCurso resumenDe(Curso curso) => calcularResumenCurso(
-        curso: curso,
-        sesiones: sesionesDe(curso.id),
-        matriculados: matriculadosEn(curso.id),
-        ahora: ahora,
-      );
+    curso: curso,
+    sesiones: sesionesDe(curso.id),
+    matriculados: matriculadosEn(curso.id),
+    ahora: ahora,
+  );
 
   List<ResumenCurso> get resumenes => [for (final curso in _cursos) resumenDe(curso)];
 
@@ -282,10 +280,11 @@ class AcademicoProvider extends ChangeNotifier {
     _sesionesPorId = porId;
 
     // Solo matrículas de cursos y estudiantes que existen.
-    final validas = _matriculasCrudas
-        .where((m) => _cursosPorId.containsKey(m.cursoId) && _estudiantesPorId.containsKey(m.estudianteId))
-        .toList()
-      ..sort((a, b) => b.fecha.compareTo(a.fecha));
+    final validas =
+        _matriculasCrudas
+            .where((m) => _cursosPorId.containsKey(m.cursoId) && _estudiantesPorId.containsKey(m.estudianteId))
+            .toList()
+          ..sort((a, b) => b.fecha.compareTo(a.fecha));
     _matriculas = List.unmodifiable(validas);
     _matriculasPorId = {for (final m in validas) m.id: m};
     final activos = <String, Set<String>>{};
@@ -361,6 +360,7 @@ class AcademicoProvider extends ChangeNotifier {
       codigo: datos.codigo.trim().toUpperCase(),
       nombre: datos.nombre.trim(),
       descripcion: datos.descripcion,
+      carrera: datos.carrera,
       creditos: datos.creditos,
       totalSesiones: datos.totalSesiones,
       diasSemana: datos.diasSemana,
@@ -382,13 +382,12 @@ class AcademicoProvider extends ChangeNotifier {
 
   /// Borra el curso con sus sesiones, matrículas y las [evaluacionIds] (las
   /// conoce el provider de calificaciones).
-  Future<void> eliminarCurso(String cursoId, {Iterable<String> evaluacionIds = const []}) =>
-      _service.eliminarCurso(
-        cursoId,
-        sesionIds: sesionesDe(cursoId).map((s) => s.id),
-        matriculaIds: _matriculas.where((m) => m.cursoId == cursoId).map((m) => m.id),
-        evaluacionIds: evaluacionIds,
-      );
+  Future<void> eliminarCurso(String cursoId, {Iterable<String> evaluacionIds = const []}) => _service.eliminarCurso(
+    cursoId,
+    sesionIds: sesionesDe(cursoId).map((s) => s.id),
+    matriculaIds: _matriculas.where((m) => m.cursoId == cursoId).map((m) => m.id),
+    evaluacionIds: evaluacionIds,
+  );
 
   /// Solo se mueven sesiones de la semana actual, a otro día de la misma
   /// semana, conservando el orden de las sesiones y sin cruces.
@@ -413,18 +412,15 @@ class AcademicoProvider extends ChangeNotifier {
         );
       }
     }
-    final conflicto = buscarConflicto(
-      [
-        BloqueHorario(
-          fecha: fecha,
-          inicio: sesion.horaInicio,
-          fin: sesion.horaFin,
-          claseNombre: curso.nombre,
-          sesionId: sesion.id,
-        ),
-      ],
-      _bloquesExistentes(),
-    );
+    final conflicto = buscarConflicto([
+      BloqueHorario(
+        fecha: fecha,
+        inicio: sesion.horaInicio,
+        fin: sesion.horaFin,
+        claseNombre: curso.nombre,
+        sesionId: sesion.id,
+      ),
+    ], _bloquesExistentes());
     if (conflicto != null) throw HorarioNoDisponible(conflicto.existente);
     await _service.actualizarFechaSesion(sesion.id, fecha);
   }
@@ -463,10 +459,8 @@ class AcademicoProvider extends ChangeNotifier {
     await _service.actualizarEstudiante(id, datos);
   }
 
-  Future<void> eliminarEstudiante(String id) => _service.eliminarEstudiante(
-        id,
-        _matriculas.where((m) => m.estudianteId == id).map((m) => m.id),
-      );
+  Future<void> eliminarEstudiante(String id) =>
+      _service.eliminarEstudiante(id, _matriculas.where((m) => m.estudianteId == id).map((m) => m.id));
 
   // ------------------------------------------------------------ Matrículas
 
@@ -491,13 +485,15 @@ class AcademicoProvider extends ChangeNotifier {
             resultado.add(previa.copyWith(estado: EstadoMatricula.activa));
           } else {
             await _service.crearMatricula(uid, cursoId, estudianteId);
-            resultado.add(Matricula(
-              id: matriculaId(cursoId, estudianteId),
-              docenteId: uid,
-              cursoId: cursoId,
-              estudianteId: estudianteId,
-              fecha: ahora,
-            ));
+            resultado.add(
+              Matricula(
+                id: matriculaId(cursoId, estudianteId),
+                docenteId: uid,
+                cursoId: cursoId,
+                estudianteId: estudianteId,
+                fecha: ahora,
+              ),
+            );
           }
         }(),
     ]);
@@ -505,18 +501,14 @@ class AcademicoProvider extends ChangeNotifier {
   }
 
   /// El estudiante deja el curso; la matrícula queda como "retirada".
-  Future<void> retirar(Matricula matricula) =>
-      _service.cambiarEstadoMatricula(matricula.id, EstadoMatricula.retirada);
+  Future<void> retirar(Matricula matricula) => _service.cambiarEstadoMatricula(matricula.id, EstadoMatricula.retirada);
 
   // ------------------------------------------------------------ Asistencia
 
   /// Guarda la asistencia de una sesión de la semana actual. Solo se
   /// escriben los matriculados no bloqueados por LDI; los bloqueados
   /// conservan lo que ya tenía la sesión.
-  Future<AsistenciaGuardada> guardarAsistencia(
-    String sesionId,
-    Map<String, EstadoAsistencia> seleccion,
-  ) async {
+  Future<AsistenciaGuardada> guardarAsistencia(String sesionId, Map<String, EstadoAsistencia> seleccion) async {
     final sesion = _sesionesPorId[sesionId];
     final curso = sesion == null ? null : _cursosPorId[sesion.cursoId];
     if (sesion == null || curso == null) throw const AcademicoFailure('La sesión ya no existe.');
@@ -531,14 +523,15 @@ class AcademicoProvider extends ChangeNotifier {
       if (nuevo != null) asistencias[estudiante.id] = nuevo;
     }
 
-    final antes = {for (final e in resumenDe(curso).estudiantes) if (e.enLdi) e.estudiante.id};
+    final antes = {
+      for (final e in resumenDe(curso).estudiantes)
+        if (e.enLdi) e.estudiante.id,
+    };
     await _service.guardarAsistencias(sesion.id, asistencias);
 
     final despues = calcularResumenCurso(
       curso: curso,
-      sesiones: [
-        for (final s in sesionesDe(curso.id)) s.id == sesion.id ? s.copyWith(asistencias: asistencias) : s,
-      ],
+      sesiones: [for (final s in sesionesDe(curso.id)) s.id == sesion.id ? s.copyWith(asistencias: asistencias) : s],
       matriculados: matriculados,
       ahora: ahora,
     );

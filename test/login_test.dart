@@ -25,18 +25,18 @@ Future<void> _pump(
   tester.view.devicePixelRatio = 1;
   tester.view.viewInsets = FakeViewPadding(bottom: teclado);
   addTearDown(tester.view.reset);
-  final auth = AuthProvider.paraPruebas(
-    const Docente(nombre: '', apellidos: '', correo: ''),
-  );
-  await tester.pumpWidget(ChangeNotifierProvider<AuthProvider>.value(
-    value: auth,
-    child: MaterialApp(
-      theme: oscuro
-          ? ThemeData(useMaterial3: true, brightness: Brightness.dark, extensions: const [AppTokens.dark])
-          : ThemeData(useMaterial3: true, extensions: const [AppTokens.light]),
-      home: pantalla,
+  final auth = AuthProvider.paraPruebas(const Docente(nombre: '', apellidos: '', correo: ''));
+  await tester.pumpWidget(
+    ChangeNotifierProvider<AuthProvider>.value(
+      value: auth,
+      child: MaterialApp(
+        theme: oscuro
+            ? ThemeData(useMaterial3: true, brightness: Brightness.dark, extensions: const [AppTokens.dark])
+            : ThemeData(useMaterial3: true, extensions: const [AppTokens.light]),
+        home: pantalla,
+      ),
     ),
-  ));
+  );
   await tester.pumpAndSettle();
 }
 
@@ -54,12 +54,7 @@ void _dentroDePantalla(WidgetTester tester, Size tamano) {
 }
 
 void main() {
-  const tamanos = {
-    '360': Size(360, 640),
-    '390': Size(390, 844),
-    'tablet': Size(820, 1180),
-    'desktop': Size(1440, 900),
-  };
+  const tamanos = {'360': Size(360, 640), '390': Size(390, 844), 'tablet': Size(820, 1180), 'desktop': Size(1440, 900)};
 
   for (final oscuro in [false, true]) {
     for (final entrada in tamanos.entries) {
@@ -71,10 +66,7 @@ void main() {
         expect(find.text('¿Olvidaste tu contraseña?'), findsOneWidget);
         expect(find.text('Crear cuenta'), findsOneWidget);
         // Brand panel only on wide screens.
-        expect(
-          find.text(AppStrings.appTagline),
-          entrada.value.width >= 960 ? findsOneWidget : findsNothing,
-        );
+        expect(find.text(AppStrings.appTagline), entrada.value.width >= 960 ? findsOneWidget : findsNothing);
         expect(tester.takeException(), isNull);
       });
 
@@ -124,7 +116,7 @@ void main() {
   testWidgets('registro valida los datos y el correo dentro del modal', (tester) async {
     await _pump(tester, tamano: const Size(360, 640));
     await tester.ensureVisible(find.text('Crear cuenta'));
-        await tester.tap(find.text('Crear cuenta'));
+    await tester.tap(find.text('Crear cuenta'));
     await tester.pumpAndSettle();
     await tester.enterText(
       find.descendant(
@@ -161,7 +153,7 @@ void main() {
     const tamano = Size(360, 640);
     await _pump(tester, tamano: tamano, teclado: 300);
     await tester.ensureVisible(find.text('Crear cuenta'));
-        await tester.tap(find.text('Crear cuenta'));
+    await tester.tap(find.text('Crear cuenta'));
     await tester.pumpAndSettle();
     expect(find.byType(RegisterDialog), findsOneWidget);
     expect(tester.getRect(_caja()).bottom, lessThanOrEqualTo(tamano.height - 300));

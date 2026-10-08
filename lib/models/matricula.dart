@@ -39,13 +39,13 @@ class Matricula {
   bool get activa => estado == EstadoMatricula.activa;
 
   Matricula copyWith({EstadoMatricula? estado}) => Matricula(
-        id: id,
-        docenteId: docenteId,
-        cursoId: cursoId,
-        estudianteId: estudianteId,
-        fecha: fecha,
-        estado: estado ?? this.estado,
-      );
+    id: id,
+    docenteId: docenteId,
+    cursoId: cursoId,
+    estudianteId: estudianteId,
+    fecha: fecha,
+    estado: estado ?? this.estado,
+  );
 
   factory Matricula.fromDoc(String id, Map<String, dynamic> data) {
     final fecha = data['fecha'];

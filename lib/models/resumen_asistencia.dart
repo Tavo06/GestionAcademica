@@ -42,11 +42,7 @@ class AsistenciaEstudiante {
   final Curso curso;
   final ResumenAsistencia resumen;
 
-  const AsistenciaEstudiante({
-    required this.estudiante,
-    required this.curso,
-    required this.resumen,
-  });
+  const AsistenciaEstudiante({required this.estudiante, required this.curso, required this.resumen});
 
   int get faltas => resumen.faltas;
 
@@ -97,10 +93,8 @@ ResumenCurso calcularResumenCurso({
   required Iterable<Estudiante> matriculados,
   required DateTime ahora,
 }) {
-  final propias = sesiones.where((s) => s.cursoId == curso.id).toList()
-    ..sort((a, b) => a.numero.compareTo(b.numero));
-  final inscritos = matriculados.toList()
-    ..sort((a, b) => a.nombreCompleto.compareTo(b.nombreCompleto));
+  final propias = sesiones.where((s) => s.cursoId == curso.id).toList()..sort((a, b) => a.numero.compareTo(b.numero));
+  final inscritos = matriculados.toList()..sort((a, b) => a.nombreCompleto.compareTo(b.nombreCompleto));
 
   final estadosPorEstudiante = <String, List<EstadoAsistencia>>{
     for (final estudiante in inscritos) estudiante.id: <EstadoAsistencia>[],
@@ -151,5 +145,4 @@ bool bloqueadoPorLdi({
 
 /// Estudiantes en LDI, mayor % de faltas primero.
 List<AsistenciaEstudiante> estudiantesEnLdi(Iterable<AsistenciaEstudiante> lista) =>
-    lista.where((e) => e.enLdi).toList()
-      ..sort((a, b) => b.porcentajeFaltas.compareTo(a.porcentajeFaltas));
+    lista.where((e) => e.enLdi).toList()..sort((a, b) => b.porcentajeFaltas.compareTo(a.porcentajeFaltas));

@@ -118,51 +118,47 @@ class MainShell extends StatelessWidget {
       builder: (hoja) {
         final tokens = hoja.tokens;
         Widget grupo(String titulo, List<_Seccion> secciones) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
+              child: Text(
+                titulo.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 12,
+                  letterSpacing: 1.1,
+                  fontWeight: FontWeight.w800,
+                  color: tokens.textSecondary,
+                ),
+              ),
+            ),
+            GridView.count(
+              crossAxisCount: 3,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 1.15,
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
-                  child: Text(
-                    titulo.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 12,
-                      letterSpacing: 1.1,
-                      fontWeight: FontWeight.w800,
-                      color: tokens.textSecondary,
-                    ),
+                for (final s in secciones)
+                  _BotonSeccion(
+                    seccion: s,
+                    activa: s.rama != null && s.rama == navigationShell.currentIndex,
+                    onTap: () {
+                      Navigator.of(hoja).pop();
+                      _ir(context, s);
+                    },
                   ),
-                ),
-                GridView.count(
-                  crossAxisCount: 3,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  childAspectRatio: 1.15,
-                  children: [
-                    for (final s in secciones)
-                      _BotonSeccion(
-                        seccion: s,
-                        activa: s.rama != null && s.rama == navigationShell.currentIndex,
-                        onTap: () {
-                          Navigator.of(hoja).pop();
-                          _ir(context, s);
-                        },
-                      ),
-                  ],
-                ),
               ],
-            );
+            ),
+          ],
+        );
         return SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                grupo('Académico', _academico),
-                grupo('Docencia', _docencia),
-                grupo('Cuenta', _cuenta),
-              ],
+              children: [grupo('Académico', _academico), grupo('Docencia', _docencia), grupo('Cuenta', _cuenta)],
             ),
           ),
         );
@@ -249,10 +245,7 @@ class _MenuLateral extends StatelessWidget {
                   Container(
                     width: 42,
                     height: 42,
-                    decoration: BoxDecoration(
-                      color: context.colors.secondary,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    decoration: BoxDecoration(color: context.colors.secondary, borderRadius: BorderRadius.circular(12)),
                     child: const Icon(Icons.auto_stories_rounded, color: Colors.white),
                   ),
                   if (extendido) ...[
@@ -407,8 +400,8 @@ class _BotonPie extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IconButton(
-        tooltip: tooltip,
-        onPressed: onTap,
-        icon: Icon(icono, color: Colors.white.withValues(alpha: 0.8)),
-      );
+    tooltip: tooltip,
+    onPressed: onTap,
+    icon: Icon(icono, color: Colors.white.withValues(alpha: 0.8)),
+  );
 }

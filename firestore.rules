@@ -29,6 +29,11 @@ service cloud.firestore {
       return value == null || value is string;
     }
 
+    // Fecha opcional en el pasado (fecha de nacimiento).
+    function isOptionalPastDate(value) {
+      return value == null || (value is timestamp && value < request.time);
+    }
+
     function isShortString(value, min, max) {
       return value is string && value.size() >= min && value.size() <= max;
     }
@@ -86,7 +91,7 @@ service cloud.firestore {
                          'role', 'status', 'mustChangePassword', 'createdAt'
                        ])
                     && request.resource.data.keys().hasOnly([
-                         'firstName', 'lastName', 'dni', 'phone', 'email', 'role',
+                         'firstName', 'lastName', 'dni', 'phone', 'birthDate', 'email', 'role',
                          'status', 'hireDate', 'mustChangePassword', 'createdAt'
                        ])
                     // Datos del formulario de registro (vacíos solo si el
@@ -97,6 +102,7 @@ service cloud.firestore {
                     && request.resource.data.lastName.size() <= 80
                     && request.resource.data.dni is string
                     && request.resource.data.dni.matches('^([0-9]{8})?$')
+                    && isOptionalPastDate(request.resource.data.get('birthDate', null))
                     && (request.resource.data.get('phone', null) == null
                         || (request.resource.data.phone is string
                             && request.resource.data.phone.matches('^\\+51[0-9]{9}$')));
@@ -121,7 +127,7 @@ service cloud.firestore {
       allow update: if isActiveTeacher()
                     && request.auth.uid == userId
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-                         'firstName', 'lastName', 'dni', 'hireDate', 'updatedAt'
+                         'firstName', 'lastName', 'dni', 'birthDate', 'hireDate', 'updatedAt'
                        ])
                     && request.resource.data.firstName is string
                     && request.resource.data.firstName.size() <= 80
@@ -130,6 +136,7 @@ service cloud.firestore {
                     && request.resource.data.dni is string
                     && request.resource.data.dni.matches('^[0-9]{8}$')
                     && isOptionalString(request.resource.data.phone)
+                    && isOptionalPastDate(request.resource.data.get('birthDate', null))
                     && (request.resource.data.hireDate == null
                         || request.resource.data.hireDate is timestamp);
 
@@ -151,13 +158,15 @@ service cloud.firestore {
                          'horaInicio', 'horaFin', 'fechaInicio', 'createdAt'
                        ])
                     && request.resource.data.keys().hasOnly([
-                         'docenteId', 'codigo', 'nombre', 'descripcion', 'creditos', 'totalSesiones',
+                         'docenteId', 'codigo', 'nombre', 'descripcion', 'carrera', 'creditos', 'totalSesiones',
                          'diasSemana', 'horaInicio', 'horaFin', 'fechaInicio', 'createdAt'
                        ])
                     && isShortString(request.resource.data.codigo, 1, 12)
                     && isShortString(request.resource.data.nombre, 1, 80)
                     && (request.resource.data.get('descripcion', null) == null
                         || isShortString(request.resource.data.descripcion, 1, 200))
+                    && (request.resource.data.get('carrera', null) == null
+                        || isShortString(request.resource.data.carrera, 1, 80))
                     && request.resource.data.creditos is int
                     && request.resource.data.creditos >= 1
                     && request.resource.data.creditos <= 10
@@ -177,11 +186,13 @@ service cloud.firestore {
       allow update: if isActiveTeacher()
                     && ownsResource()
                     && request.resource.data.diff(resource.data).affectedKeys()
-                         .hasOnly(['codigo', 'nombre', 'descripcion', 'creditos', 'updatedAt'])
+                         .hasOnly(['codigo', 'nombre', 'descripcion', 'carrera', 'creditos', 'updatedAt'])
                     && isShortString(request.resource.data.codigo, 1, 12)
                     && isShortString(request.resource.data.nombre, 1, 80)
                     && (request.resource.data.get('descripcion', null) == null
                         || isShortString(request.resource.data.descripcion, 1, 200))
+                    && (request.resource.data.get('carrera', null) == null
+                        || isShortString(request.resource.data.carrera, 1, 80))
                     && request.resource.data.creditos is int
                     && request.resource.data.creditos >= 1
                     && request.resource.data.creditos <= 10

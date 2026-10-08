@@ -46,20 +46,17 @@ class _RegistroNotasScreenState extends State<RegistroNotasScreen> {
     super.dispose();
   }
 
-  TextEditingController _campo(String estudianteId, double? nota) => _campos.putIfAbsent(
-        estudianteId,
-        () => TextEditingController(text: nota == null ? '' : _texto(nota)),
-      );
+  TextEditingController _campo(String estudianteId, double? nota) =>
+      _campos.putIfAbsent(estudianteId, () => TextEditingController(text: nota == null ? '' : _texto(nota)));
 
   /// 15 → "15", 14.5 → "14.5".
-  static String _texto(double nota) =>
-      nota == nota.roundToDouble() ? nota.toStringAsFixed(0) : nota.toString();
+  static String _texto(double nota) => nota == nota.roundToDouble() ? nota.toStringAsFixed(0) : nota.toString();
 
   bool _pasaFiltro(double? nota) => switch (_filtro) {
-        _Filtro.todos => true,
-        _Filtro.sinNota => nota == null,
-        _Filtro.desaprobados => nota != null && !estaAprobado(nota),
-      };
+    _Filtro.todos => true,
+    _Filtro.sinNota => nota == null,
+    _Filtro.desaprobados => nota != null && !estaAprobado(nota),
+  };
 
   Future<void> _guardar(Evaluacion evaluacion) async {
     if (!_formKey.currentState!.validate()) {
@@ -98,7 +95,8 @@ class _RegistroNotasScreenState extends State<RegistroNotasScreen> {
     final calificaciones = context.watch<CalificacionesProvider>();
     final academico = context.watch<AcademicoProvider>();
     final id = widget.evaluacionId ?? widget.evaluacion?.id;
-    final evaluacion = (id == null ? null : calificaciones.evaluacionPorId(id)) ??
+    final evaluacion =
+        (id == null ? null : calificaciones.evaluacionPorId(id)) ??
         (calificaciones.cargando ? widget.evaluacion : null);
     final curso = evaluacion == null ? null : academico.cursoPorId(evaluacion.cursoId);
 
@@ -122,9 +120,7 @@ class _RegistroNotasScreenState extends State<RegistroNotasScreen> {
     final tokens = context.tokens;
     final matriculados = academico.matriculadosEn(curso.id);
     // Valores actuales del formulario (lo escrito, aún sin guardar).
-    final actuales = {
-      for (final e in matriculados) e.id: parseNota(_campo(e.id, evaluacion.notaDe(e.id)).text),
-    };
+    final actuales = {for (final e in matriculados) e.id: parseNota(_campo(e.id, evaluacion.notaDe(e.id)).text)};
     final validas = actuales.values.whereType<double>().where(esNotaValida).toList();
     final promedio = promedioSimple(validas);
     final aprobados = validas.where(estaAprobado).length;

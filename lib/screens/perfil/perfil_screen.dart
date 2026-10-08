@@ -9,6 +9,7 @@ import '../../providers/academico_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/comunes.dart';
 import '../../widgets/encabezado.dart';
+import '../auth/register/register_dialog.dart';
 
 /// Perfil del docente (la entidad Docente del sistema): edita sus datos;
 /// el correo y el celular verificados son de solo lectura.
@@ -26,6 +27,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
   late final _apellidosController = TextEditingController(text: _docente.apellidos);
   late final _dniController = TextEditingController(text: _docente.dni);
   late DateTime? _fechaIngreso = _docente.fechaIngreso;
+  late DateTime? _fechaNacimiento = _docente.fechaNacimiento;
   bool _guardando = false;
 
   @override
@@ -52,11 +54,12 @@ class _PerfilScreenState extends State<PerfilScreen> {
     setState(() => _guardando = true);
     try {
       await context.read<AuthProvider>().updateProfile(
-            nombre: _nombreController.text,
-            apellidos: _apellidosController.text,
-            dni: _dniController.text,
-            fechaIngreso: _fechaIngreso,
-          );
+        nombre: _nombreController.text,
+        apellidos: _apellidosController.text,
+        dni: _dniController.text,
+        fechaNacimiento: _fechaNacimiento,
+        fechaIngreso: _fechaIngreso,
+      );
       if (mounted) showMessage(context, 'Perfil actualizado.');
     } on AuthFailure catch (e) {
       if (mounted) showMessage(context, e.message, error: true);
@@ -109,10 +112,8 @@ class _PerfilScreenState extends State<PerfilScreen> {
                                 children: [
                                   Text(
                                     docente.nombreCompleto,
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                        ),
+                                    style: Theme.of(context).textTheme.titleLarge
+                                        ?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
                                   ),
                                   Text(docente.correo),
                                   if (docente.fechaRegistro != null)
@@ -169,7 +170,10 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         controller: _nombreController,
                         textCapitalization: TextCapitalization.words,
                         inputFormatters: [LengthLimitingTextInputFormatter(80)],
-                        decoration: const InputDecoration(labelText: 'Nombres', prefixIcon: Icon(Icons.person_outline_rounded)),
+                        decoration: const InputDecoration(
+                          labelText: 'Nombres',
+                          prefixIcon: Icon(Icons.person_outline_rounded),
+                        ),
                         validator: (v) => Validators.required(v, field: 'El nombre'),
                       ),
                       const SizedBox(height: 12),
@@ -177,7 +181,10 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         controller: _apellidosController,
                         textCapitalization: TextCapitalization.words,
                         inputFormatters: [LengthLimitingTextInputFormatter(80)],
-                        decoration: const InputDecoration(labelText: 'Apellidos', prefixIcon: Icon(Icons.badge_outlined)),
+                        decoration: const InputDecoration(
+                          labelText: 'Apellidos',
+                          prefixIcon: Icon(Icons.badge_outlined),
+                        ),
                         validator: (v) => Validators.required(v, field: 'Los apellidos'),
                       ),
                       const SizedBox(height: 12),
@@ -185,8 +192,17 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         controller: _dniController,
                         keyboardType: TextInputType.number,
                         inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(8)],
-                        decoration: const InputDecoration(labelText: 'DNI', prefixIcon: Icon(Icons.credit_card_rounded)),
+                        decoration: const InputDecoration(
+                          labelText: 'DNI',
+                          prefixIcon: Icon(Icons.credit_card_rounded),
+                        ),
                         validator: Validators.dni,
+                      ),
+                      const SizedBox(height: 12),
+                      FechaNacimientoField(
+                        valor: _fechaNacimiento,
+                        enabled: !_guardando,
+                        onChanged: (fecha) => setState(() => _fechaNacimiento = fecha),
                       ),
                       const SizedBox(height: 12),
                       Material(

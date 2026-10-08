@@ -87,13 +87,7 @@ class AuthProvider extends ChangeNotifier {
       _profile?.estado == EstadoCuenta.activo;
 
   Docente get docente =>
-      _profile ??
-      Docente(
-        uid: _firebaseUser?.uid ?? '',
-        nombre: '',
-        apellidos: '',
-        correo: _firebaseUser?.email ?? '',
-      );
+      _profile ?? Docente(uid: _firebaseUser?.uid ?? '', nombre: '', apellidos: '', correo: _firebaseUser?.email ?? '');
 
   Future<void> _onAuthChanged(User? user) async {
     _firebaseUser = user;
@@ -141,9 +135,7 @@ class AuthProvider extends ChangeNotifier {
       }
       if (data != null) {
         final profile = Docente.fromFirestore(user.uid, data);
-        _profile = profile.correo.isEmpty
-            ? profile.copyWith(correo: user.email ?? '')
-            : profile;
+        _profile = profile.correo.isEmpty ? profile.copyWith(correo: user.email ?? '') : profile;
         _mustChangePassword = data['mustChangePassword'] as bool? ?? false;
         if (_mustChangePassword && _signedInWithPassword) {
           try {
@@ -168,27 +160,25 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Map<String, dynamic> _newTeacherProfile(User user) => {
-        'firstName': _pendingRegistration?['firstName'] ?? '',
-        'lastName': _pendingRegistration?['lastName'] ?? '',
-        'dni': _pendingRegistration?['dni'] ?? '',
-        // Number typed at sign-up; replaced by the SMS-verified one in
-        // [_onPhoneLinked].
-        'phone': _pendingRegistration?['phone'],
-        'email': user.email ?? '',
-        'role': 'docente',
-        'status': 'activo',
-        'hireDate': null,
-        'mustChangePassword': true,
-        'createdAt': FieldValue.serverTimestamp(),
-      };
+    'firstName': _pendingRegistration?['firstName'] ?? '',
+    'lastName': _pendingRegistration?['lastName'] ?? '',
+    'dni': _pendingRegistration?['dni'] ?? '',
+    'birthDate': _pendingRegistration?['birthDate'],
+    // Number typed at sign-up; replaced by the SMS-verified one in
+    // [_onPhoneLinked].
+    'phone': _pendingRegistration?['phone'],
+    'email': user.email ?? '',
+    'role': 'docente',
+    'status': 'activo',
+    'hireDate': null,
+    'mustChangePassword': true,
+    'createdAt': FieldValue.serverTimestamp(),
+  };
 
   Future<void> login({required String correo, required String password}) async {
     _signedInWithPassword = true;
     try {
-      await _auth.signInWithEmailAndPassword(
-        email: correo.trim(),
-        password: password,
-      );
+      await _auth.signInWithEmailAndPassword(email: correo.trim(), password: password);
     } on FirebaseAuthException catch (e) {
       _signedInWithPassword = false;
       throw AuthFailure(_mapLoginError(e));
@@ -199,13 +189,14 @@ class AuthProvider extends ChangeNotifier {
   /// in-memory throwaway password and sends the official verification email.
   /// The `docente` profile, with the personal data typed here, is created by
   /// [_loadProfile]. [celular] is the 9-digit Peruvian mobile, verified by
-  /// SMS in the next steps.
+  /// SMS in the next steps; [fechaNacimiento] is stored as `birthDate`.
   Future<void> registerTeacher({
     required String correo,
     required String nombre,
     required String apellidos,
     required String dni,
     required String celular,
+    required DateTime fechaNacimiento,
   }) async {
     final tempPassword = generateTemporaryPassword();
     _tempPassword = tempPassword;
@@ -216,13 +207,11 @@ class AuthProvider extends ChangeNotifier {
       'lastName': apellidos.trim(),
       'dni': dni.trim(),
       'phone': celularE164(celular),
+      'birthDate': Timestamp.fromDate(DateTime(fechaNacimiento.year, fechaNacimiento.month, fechaNacimiento.day)),
     };
     final UserCredential credential;
     try {
-      credential = await _auth.createUserWithEmailAndPassword(
-        email: correo.trim(),
-        password: tempPassword,
-      );
+      credential = await _auth.createUserWithEmailAndPassword(email: correo.trim(), password: tempPassword);
     } on FirebaseAuthException catch (e) {
       _tempPassword = null;
       _pendingRegistration = null;
@@ -293,8 +282,7 @@ class AuthProvider extends ChangeNotifier {
     }
 
     // Firebase phone auth only exists on Android, iOS and web.
-    if (defaultTargetPlatform != TargetPlatform.android &&
-        defaultTargetPlatform != TargetPlatform.iOS) {
+    if (defaultTargetPlatform != TargetPlatform.android && defaultTargetPlatform != TargetPlatform.iOS) {
       throw const AuthFailure(
         'La verificación por SMS solo funciona en el celular (Android) o en '
         'el navegador. Abre la app en tu celular para continuar.',
@@ -344,10 +332,7 @@ class AuthProvider extends ChangeNotifier {
 
     final verificationId = _verificationId;
     if (verificationId == null) throw const AuthFailure(_sendCodeFirst);
-    await _linkPhone(PhoneAuthProvider.credential(
-      verificationId: verificationId,
-      smsCode: codigo.trim(),
-    ));
+    await _linkPhone(PhoneAuthProvider.credential(verificationId: verificationId, smsCode: codigo.trim()));
   }
 
   Future<void> _linkPhone(PhoneAuthCredential credential) async {
@@ -415,9 +400,7 @@ class AuthProvider extends ChangeNotifier {
         await user.updatePassword(newPassword);
       }
       _tempPassword = null;
-      await _firestore.collection('users').doc(user.uid).update({
-        'mustChangePassword': false,
-      });
+      await _firestore.collection('users').doc(user.uid).update({'mustChangePassword': false});
       _mustChangePassword = false;
       _registrationComplete = true;
       notifyListeners();
@@ -438,6 +421,7 @@ class AuthProvider extends ChangeNotifier {
     required String nombre,
     required String apellidos,
     required String dni,
+    DateTime? fechaNacimiento,
     DateTime? fechaIngreso,
   }) async {
     final user = _firebaseUser;
@@ -449,15 +433,12 @@ class AuthProvider extends ChangeNotifier {
         'firstName': nombre.trim(),
         'lastName': apellidos.trim(),
         'dni': dni.trim(),
+        'birthDate': fechaNacimiento != null ? Timestamp.fromDate(fechaNacimiento) : null,
         'hireDate': fechaIngreso != null ? Timestamp.fromDate(fechaIngreso) : null,
         'updatedAt': FieldValue.serverTimestamp(),
       });
     } on FirebaseException catch (e) {
-      throw AuthFailure(
-        e.code == 'unavailable'
-            ? _networkError
-            : 'No se pudieron guardar los cambios del perfil.',
-      );
+      throw AuthFailure(e.code == 'unavailable' ? _networkError : 'No se pudieron guardar los cambios del perfil.');
     }
     _profile = Docente(
       uid: profile.uid,
@@ -466,6 +447,7 @@ class AuthProvider extends ChangeNotifier {
       correo: profile.correo,
       dni: dni.trim(),
       telefono: profile.telefono,
+      fechaNacimiento: fechaNacimiento,
       estado: profile.estado,
       fechaIngreso: fechaIngreso,
       fechaRegistro: profile.fechaRegistro,
@@ -489,12 +471,9 @@ class AuthProvider extends ChangeNotifier {
     super.dispose();
   }
 
-  static const _networkError =
-      'Sin conexión a internet. Verifica tu conexión e intenta nuevamente.';
-  static const _tooManyRequests =
-      'Demasiados intentos. Intenta nuevamente más tarde.';
-  static const _sendCodeFirst =
-      'Primero solicita el código SMS a tu celular.';
+  static const _networkError = 'Sin conexión a internet. Verifica tu conexión e intenta nuevamente.';
+  static const _tooManyRequests = 'Demasiados intentos. Intenta nuevamente más tarde.';
+  static const _sendCodeFirst = 'Primero solicita el código SMS a tu celular.';
 
   /// In debug builds the Firebase code is appended, so configuration
   /// problems (provider disabled, test number missing...) can be told apart.

@@ -34,19 +34,13 @@ class ResultadoMarca {
   }
 }
 
-int _diferenciaMinutos(DateTime programada, DateTime real) =>
-    real.difference(programada).inMinutes;
+int _diferenciaMinutos(DateTime programada, DateTime real) => real.difference(programada).inMinutes;
 
 /// Why the teacher can't clock in for a session now, or null if they can:
 /// only on the session's day, from [aperturaEntradaMinutos] before it
 /// starts until it ends.
-String? validarEntrada({
-  required DateTime inicio,
-  required DateTime fin,
-  required DateTime ahora,
-}) {
-  final mismoDia =
-      inicio.year == ahora.year && inicio.month == ahora.month && inicio.day == ahora.day;
+String? validarEntrada({required DateTime inicio, required DateTime fin, required DateTime ahora}) {
+  final mismoDia = inicio.year == ahora.year && inicio.month == ahora.month && inicio.day == ahora.day;
   if (!mismoDia) return 'Solo puedes registrar la entrada el día de la sesión.';
   final apertura = inicio.subtract(const Duration(minutes: aperturaEntradaMinutos));
   if (ahora.isBefore(apertura)) {

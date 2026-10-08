@@ -90,7 +90,10 @@ class _EstudianteDetalleScreenState extends State<EstudianteDetalleScreen> {
     final tokens = context.tokens;
     final cursos = academico.cursosDe(estudiante.id);
     final promedios = calificaciones.promediosDeEstudiante(estudiante.id);
-    final general = promedioSimple([for (final p in promedios) if (p.promedio != null) p.promedio!]);
+    final general = promedioSimple([
+      for (final p in promedios)
+        if (p.promedio != null) p.promedio!,
+    ]);
     final seleccionado = cursos.where((c) => c.id == _cursoId).firstOrNull ?? cursos.firstOrNull;
     final historial = academico.matriculasDeEstudiante(estudiante.id);
 
@@ -100,11 +103,7 @@ class _EstudianteDetalleScreenState extends State<EstudianteDetalleScreen> {
         subtitulo: estudiante.codigo,
         leading: const VolverButton(),
         acciones: [
-          IconButton(
-            tooltip: 'Editar',
-            onPressed: () => _editar(estudiante),
-            icon: const Icon(Icons.edit_outlined),
-          ),
+          IconButton(tooltip: 'Editar', onPressed: () => _editar(estudiante), icon: const Icon(Icons.edit_outlined)),
           PopupMenuButton<String>(
             tooltip: 'Opciones',
             icon: const Icon(Icons.more_vert_rounded),
@@ -153,10 +152,8 @@ class _EstudianteDetalleScreenState extends State<EstudianteDetalleScreen> {
                       children: [
                         Text(
                           estudiante.nombreVisible,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                              ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
                         ),
                         Text('Código ${estudiante.codigo}'),
                         if (estudiante.correo != null) Text(estudiante.correo!),
@@ -190,33 +187,32 @@ class _EstudianteDetalleScreenState extends State<EstudianteDetalleScreen> {
             else ...[
               const SectionHeader(title: 'Cursos matriculados', subtitle: 'Toca un curso para ver su detalle.'),
               for (final curso in cursos)
-                Builder(builder: (context) {
-                  final p = calificaciones.promedioDe(estudiante.id, curso.id);
-                  final a = academico.asistenciaDe(estudiante.id, curso.id);
-                  final activo = curso.id == seleccionado?.id;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: activo ? context.colors.secondary : Colors.transparent,
-                          width: 2,
+                Builder(
+                  builder: (context) {
+                    final p = calificaciones.promedioDe(estudiante.id, curso.id);
+                    final a = academico.asistenciaDe(estudiante.id, curso.id);
+                    final activo = curso.id == seleccionado?.id;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: activo ? context.colors.secondary : Colors.transparent, width: 2),
+                        ),
+                        child: ListTile(
+                          onTap: () => setState(() => _cursoId = curso.id),
+                          title: Text(curso.titulo, style: const TextStyle(fontWeight: FontWeight.w800)),
+                          subtitle: Text(
+                            a == null
+                                ? 'Sin asistencia'
+                                : '${a.faltasTexto} · asistencia ${formatPorcentaje(a.porcentajeAsistencia)}',
+                          ),
+                          trailing: NotaBadge(p?.promedio),
                         ),
                       ),
-                      child: ListTile(
-                        onTap: () => setState(() => _cursoId = curso.id),
-                        title: Text(curso.titulo, style: const TextStyle(fontWeight: FontWeight.w800)),
-                        subtitle: Text(
-                          a == null
-                              ? 'Sin asistencia'
-                              : '${a.faltasTexto} · asistencia ${formatPorcentaje(a.porcentajeAsistencia)}',
-                        ),
-                        trailing: NotaBadge(p?.promedio),
-                      ),
-                    ),
-                  );
-                }),
+                    );
+                  },
+                ),
               if (seleccionado != null) ...[
                 SectionHeader(
                   title: 'Notas en ${seleccionado.nombre}',
@@ -225,40 +221,39 @@ class _EstudianteDetalleScreenState extends State<EstudianteDetalleScreen> {
                     child: const Text('Ver curso'),
                   ),
                 ),
-                Builder(builder: (context) {
-                  final evaluaciones = calificaciones.evaluacionesDe(seleccionado.id);
-                  final p = calificaciones.promedioDe(estudiante.id, seleccionado.id);
-                  if (evaluaciones.isEmpty) {
-                    return Text(
-                      'El curso aún no tiene evaluaciones.',
-                      style: TextStyle(color: tokens.textSecondary),
-                    );
-                  }
-                  return Card(
-                    child: Column(
-                      children: [
-                        for (final ev in evaluaciones)
+                Builder(
+                  builder: (context) {
+                    final evaluaciones = calificaciones.evaluacionesDe(seleccionado.id);
+                    final p = calificaciones.promedioDe(estudiante.id, seleccionado.id);
+                    if (evaluaciones.isEmpty) {
+                      return Text('El curso aún no tiene evaluaciones.', style: TextStyle(color: tokens.textSecondary));
+                    }
+                    return Card(
+                      child: Column(
+                        children: [
+                          for (final ev in evaluaciones)
+                            ListTile(
+                              dense: true,
+                              title: Text(ev.nombre, style: const TextStyle(fontWeight: FontWeight.w700)),
+                              subtitle: Text('${ev.tipo.etiqueta} · peso ${ev.peso}%'),
+                              trailing: NotaBadge(ev.notaDe(estudiante.id), ancho: 54),
+                            ),
+                          const Divider(height: 1),
                           ListTile(
-                            dense: true,
-                            title: Text(ev.nombre, style: const TextStyle(fontWeight: FontWeight.w700)),
-                            subtitle: Text('${ev.tipo.etiqueta} · peso ${ev.peso}%'),
-                            trailing: NotaBadge(ev.notaDe(estudiante.id), ancho: 54),
+                            title: const Text('Promedio ponderado', style: TextStyle(fontWeight: FontWeight.w800)),
+                            subtitle: Text(
+                              p == null || p.promedio == null
+                                  ? 'Sin notas registradas'
+                                  : '${p.condicion.etiqueta}'
+                                        '${p.parcial ? ' · parcial (${p.pesoEvaluado}% evaluado)' : ''}',
+                            ),
+                            trailing: NotaBadge(p?.promedio, ancho: 64),
                           ),
-                        const Divider(height: 1),
-                        ListTile(
-                          title: const Text('Promedio ponderado', style: TextStyle(fontWeight: FontWeight.w800)),
-                          subtitle: Text(
-                            p == null || p.promedio == null
-                                ? 'Sin notas registradas'
-                                : '${p.condicion.etiqueta}'
-                                    '${p.parcial ? ' · parcial (${p.pesoEvaluado}% evaluado)' : ''}',
-                          ),
-                          trailing: NotaBadge(p?.promedio, ancho: 64),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ],
             ],
             if (historial.isNotEmpty) ...[

@@ -23,7 +23,9 @@ class InactiveScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(child: AuthIconBadge(icon: Icons.block_rounded, color: tokens.error)),
+              Center(
+                child: AuthIconBadge(icon: Icons.block_rounded, color: tokens.error),
+              ),
               const SizedBox(height: 16),
               Text(
                 'Cuenta deshabilitada',
@@ -40,10 +42,7 @@ class InactiveScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: tokens.surfaceMuted,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
+                  decoration: BoxDecoration(color: tokens.surfaceMuted, borderRadius: BorderRadius.circular(14)),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -53,11 +52,7 @@ class InactiveScreen extends StatelessWidget {
                         child: Text(
                           email,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 14.5,
-                            fontWeight: FontWeight.w700,
-                            color: tokens.textPrimary,
-                          ),
+                          style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700, color: tokens.textPrimary),
                         ),
                       ),
                     ],

@@ -98,7 +98,10 @@ void main() {
         cursos: d.cursos,
         estudiantes: d.estudiantes,
         sesiones: d.sesiones,
-        matriculas: [...d.matriculas.where((m) => m.estudianteId != 'juan'), matriculaDe('pii', 'juan', estado: EstadoMatricula.retirada)],
+        matriculas: [
+          ...d.matriculas.where((m) => m.estudianteId != 'juan'),
+          matriculaDe('pii', 'juan', estado: EstadoMatricula.retirada),
+        ],
         evaluaciones: d.evaluaciones,
       ));
       expect(academico.matriculadosEn('pii').map((e) => e.id), isNot(contains('juan')));
@@ -134,7 +137,9 @@ void main() {
 
     test('editar cambia los datos descriptivos', () async {
       final (academico, fake) = await conectado(datosPrueba());
-      final editado = await academico.actualizarCurso(academico.cursoPorId('bd')!.copyWith(nombre: 'Bases de Datos I', creditos: 5));
+      final editado = await academico.actualizarCurso(
+        academico.cursoPorId('bd')!.copyWith(nombre: 'Bases de Datos I', creditos: 5),
+      );
       await pumpEventQueue();
       expect(editado.nombre, 'Bases de Datos I');
       expect(fake.cursos.firstWhere((c) => c.id == 'bd').creditos, 5);
@@ -153,8 +158,16 @@ void main() {
 
     test('solo se mueve la fecha dentro de la semana actual y sin cruces', () async {
       final d = datosPrueba();
-      final taller = cursoDe('taller', 'TAL', 'Taller', '17:30', '18:30',
-          total: 1, dias: const [DateTime.tuesday], desde: DateTime(2026, 10, 13));
+      final taller = cursoDe(
+        'taller',
+        'TAL',
+        'Taller',
+        '17:30',
+        '18:30',
+        total: 1,
+        dias: const [DateTime.tuesday],
+        desde: DateTime(2026, 10, 13),
+      );
       final fake = FakeAcademicoService();
       final academico = AcademicoProvider.conDatos(
         cursos: [...d.cursos, taller],
@@ -233,10 +246,19 @@ void main() {
     test('al cambiar de docente no quedan datos del anterior', () async {
       final d = datosPrueba();
       final fake = FakeAcademicoService(
-        cursos: [...d.cursos, cursoDe('otro', 'B-1', 'Curso de B', '08:00', '10:00', docenteId: 'B')],
-        estudiantes: [...d.estudiantes, estudianteDe('b1', 'Beto', 'Bravo', docenteId: 'B')],
+        cursos: [
+          ...d.cursos,
+          cursoDe('otro', 'B-1', 'Curso de B', '08:00', '10:00', docenteId: 'B'),
+        ],
+        estudiantes: [
+          ...d.estudiantes,
+          estudianteDe('b1', 'Beto', 'Bravo', docenteId: 'B'),
+        ],
         sesiones: d.sesiones,
-        matriculas: [...d.matriculas, matriculaDe('otro', 'b1', docenteId: 'B')],
+        matriculas: [
+          ...d.matriculas,
+          matriculaDe('otro', 'b1', docenteId: 'B'),
+        ],
       );
       final academico = AcademicoProvider(service: fake, reloj: () => ahoraPrueba);
       addTearDown(academico.dispose);

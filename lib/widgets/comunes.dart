@@ -19,14 +19,16 @@ class PageList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final lateral = math.max(16.0, (constraints.maxWidth - anchoMaximoContenido) / 2);
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(lateral, top, lateral, bottom),
-        children: children,
-      );
-    });
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final lateral = math.max(16.0, (constraints.maxWidth - anchoMaximoContenido) / 2);
+        return ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(lateral, top, lateral, bottom),
+          children: children,
+        );
+      },
+    );
   }
 }
 
@@ -38,40 +40,38 @@ class AdaptiveGrid extends StatelessWidget {
   final int maxColumnas;
   final double espacio;
 
-  const AdaptiveGrid({
-    super.key,
-    required this.children,
-    this.minAncho = 150,
-    this.maxColumnas = 4,
-    this.espacio = 12,
-  });
+  const AdaptiveGrid({super.key, required this.children, this.minAncho = 150, this.maxColumnas = 4, this.espacio = 12});
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final columnas = math.max(
-        1,
-        math.min(maxColumnas, ((constraints.maxWidth + espacio) / (minAncho + espacio)).floor()),
-      );
-      final filas = <Widget>[];
-      for (var i = 0; i < children.length; i += columnas) {
-        filas.add(Padding(
-          padding: EdgeInsets.only(bottom: i + columnas < children.length ? espacio : 0),
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (var j = 0; j < columnas; j++) ...[
-                  if (j > 0) SizedBox(width: espacio),
-                  Expanded(child: i + j < children.length ? children[i + j] : const SizedBox()),
-                ],
-              ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columnas = math.max(
+          1,
+          math.min(maxColumnas, ((constraints.maxWidth + espacio) / (minAncho + espacio)).floor()),
+        );
+        final filas = <Widget>[];
+        for (var i = 0; i < children.length; i += columnas) {
+          filas.add(
+            Padding(
+              padding: EdgeInsets.only(bottom: i + columnas < children.length ? espacio : 0),
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (var j = 0; j < columnas; j++) ...[
+                      if (j > 0) SizedBox(width: espacio),
+                      Expanded(child: i + j < children.length ? children[i + j] : const SizedBox()),
+                    ],
+                  ],
+                ),
+              ),
             ),
-          ),
-        ));
-      }
-      return Column(children: filas);
-    });
+          );
+        }
+        return Column(children: filas);
+      },
+    );
   }
 }
 
@@ -93,10 +93,7 @@ class SectionHeader extends StatelessWidget {
           Container(
             width: 4,
             height: subtitle == null ? 18 : 34,
-            decoration: BoxDecoration(
-              color: context.colors.secondary,
-              borderRadius: BorderRadius.circular(2),
-            ),
+            decoration: BoxDecoration(color: context.colors.secondary, borderRadius: BorderRadius.circular(2)),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -112,8 +109,7 @@ class SectionHeader extends StatelessWidget {
                     color: tokens.textPrimary,
                   ),
                 ),
-                if (subtitle != null)
-                  Text(subtitle!, style: TextStyle(fontSize: 12.5, color: tokens.textSecondary)),
+                if (subtitle != null) Text(subtitle!, style: TextStyle(fontSize: 12.5, color: tokens.textSecondary)),
               ],
             ),
           ),
@@ -149,7 +145,9 @@ class StatTile extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Container(
-          decoration: BoxDecoration(border: Border(left: BorderSide(color: color, width: 4))),
+          decoration: BoxDecoration(
+            border: Border(left: BorderSide(color: color, width: 4)),
+          ),
           padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
           child: Row(
             children: [
@@ -161,15 +159,10 @@ class StatTile extends StatelessWidget {
                       value,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: tokens.textPrimary,
-                          ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w700, color: tokens.textPrimary),
                     ),
-                    Text(
-                      label,
-                      style: TextStyle(fontSize: 12.5, color: tokens.textSecondary, height: 1.2),
-                    ),
+                    Text(label, style: TextStyle(fontSize: 12.5, color: tokens.textSecondary, height: 1.2)),
                   ],
                 ),
               ),
@@ -201,10 +194,7 @@ class StatusChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ...[
-            Icon(icon, size: 13, color: color),
-            const SizedBox(width: 4),
-          ],
+          if (icon != null) ...[Icon(icon, size: 13, color: color), const SizedBox(width: 4)],
           Flexible(
             child: Text(
               label,
@@ -225,13 +215,7 @@ class ProgressLine extends StatelessWidget {
   final String detalle;
   final Color? color;
 
-  const ProgressLine({
-    super.key,
-    required this.value,
-    required this.label,
-    required this.detalle,
-    this.color,
-  });
+  const ProgressLine({super.key, required this.value, required this.label, required this.detalle, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -242,8 +226,13 @@ class ProgressLine extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: Text(label, style: TextStyle(fontSize: 12.5, color: tokens.textSecondary))),
-            Text(detalle, style: TextStyle(fontWeight: FontWeight.w800, color: tokens.textPrimary)),
+            Expanded(
+              child: Text(label, style: TextStyle(fontSize: 12.5, color: tokens.textSecondary)),
+            ),
+            Text(
+              detalle,
+              style: TextStyle(fontWeight: FontWeight.w800, color: tokens.textPrimary),
+            ),
           ],
         ),
         const SizedBox(height: 6),
@@ -305,7 +294,9 @@ class InfoLine extends StatelessWidget {
         children: [
           Icon(icon, size: 15, color: tono),
           const SizedBox(width: 6),
-          Expanded(child: Text(text, style: TextStyle(fontSize: 13, color: tono))),
+          Expanded(
+            child: Text(text, style: TextStyle(fontSize: 13, color: tono)),
+          ),
         ],
       ),
     );
@@ -319,13 +310,7 @@ class EmptyState extends StatelessWidget {
   final String message;
   final Widget? action;
 
-  const EmptyState({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.message,
-    this.action,
-  });
+  const EmptyState({super.key, required this.icon, required this.title, required this.message, this.action});
 
   @override
   Widget build(BuildContext context) {
@@ -344,10 +329,7 @@ class EmptyState extends StatelessWidget {
                 Positioned(
                   right: 0,
                   top: 0,
-                  child: CircleAvatar(
-                    radius: 30,
-                    backgroundColor: colors.secondary.withValues(alpha: 0.18),
-                  ),
+                  child: CircleAvatar(radius: 30, backgroundColor: colors.secondary.withValues(alpha: 0.18)),
                 ),
                 Positioned(
                   left: 0,
@@ -369,10 +351,8 @@ class EmptyState extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: tokens.textPrimary,
-                ),
+            style: Theme.of(context).textTheme.titleLarge
+                ?.copyWith(fontWeight: FontWeight.w700, color: tokens.textPrimary),
           ),
           const SizedBox(height: 8),
           Text(
@@ -466,10 +446,7 @@ class BuscadorField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
-      decoration: InputDecoration(
-        hintText: hint,
-        prefixIcon: const Icon(Icons.search_rounded),
-      ),
+      decoration: InputDecoration(hintText: hint, prefixIcon: const Icon(Icons.search_rounded)),
       onChanged: onChanged,
     );
   }
@@ -479,19 +456,20 @@ void showMessage(BuildContext context, String mensaje, {bool error = false}) {
   final tokens = context.tokens;
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(
-      backgroundColor: error ? tokens.error : null,
-      content: Row(
-        children: [
-          Icon(
-            error ? Icons.error_outline_rounded : Icons.check_circle_outline_rounded,
-            color: Colors.white,
-          ),
-          const SizedBox(width: 10),
-          Expanded(child: Text(mensaje, style: const TextStyle(color: Colors.white))),
-        ],
+    ..showSnackBar(
+      SnackBar(
+        backgroundColor: error ? tokens.error : null,
+        content: Row(
+          children: [
+            Icon(error ? Icons.error_outline_rounded : Icons.check_circle_outline_rounded, color: Colors.white),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(mensaje, style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
       ),
-    ));
+    );
 }
 
 Future<bool> confirmar(
@@ -507,10 +485,7 @@ Future<bool> confirmar(
       title: Text(titulo),
       content: Text(mensaje),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: const Text('Cancelar'),
-        ),
+        TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancelar')),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(true),
           style: destructiva ? FilledButton.styleFrom(backgroundColor: context.tokens.error) : null,

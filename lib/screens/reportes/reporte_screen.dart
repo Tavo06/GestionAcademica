@@ -75,19 +75,14 @@ class ReporteScreen extends StatelessWidget {
         child: PageList(
           children: [
             BannerDestacado(
-              insignia: Insignia(
-                texto: condicionDe(notas.promedioGeneral).etiqueta,
-                icono: Icons.insights_rounded,
-              ),
+              insignia: Insignia(texto: condicionDe(notas.promedioGeneral).etiqueta, icono: Icons.insights_rounded),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     actual.titulo,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
+                    style: Theme.of(context).textTheme.titleLarge
+                        ?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 4),
                   InfoLine(icon: Icons.person_rounded, text: 'Docente: ${docente.nombreCompleto}', color: Colors.white),

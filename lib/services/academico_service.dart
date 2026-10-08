@@ -20,8 +20,7 @@ class AcademicoFailure implements Exception {
 /// (`matriculas`). Todo documento lleva `docenteId`, que revisan las reglas,
 /// y toda consulta filtra por él.
 class AcademicoService {
-  AcademicoService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+  AcademicoService({FirebaseFirestore? firestore}) : _firestore = firestore ?? FirebaseFirestore.instance;
 
   final FirebaseFirestore _firestore;
 
@@ -31,11 +30,9 @@ class AcademicoService {
 
   CollectionReference<Map<String, dynamic>> get _cursos => _firestore.collection('cursos');
   CollectionReference<Map<String, dynamic>> get _sesiones => _firestore.collection('sesiones');
-  CollectionReference<Map<String, dynamic>> get _estudiantes =>
-      _firestore.collection('estudiantes');
+  CollectionReference<Map<String, dynamic>> get _estudiantes => _firestore.collection('estudiantes');
   CollectionReference<Map<String, dynamic>> get _matriculas => _firestore.collection('matriculas');
-  CollectionReference<Map<String, dynamic>> get _evaluaciones =>
-      _firestore.collection('evaluaciones');
+  CollectionReference<Map<String, dynamic>> get _evaluaciones => _firestore.collection('evaluaciones');
 
   Stream<List<Curso>> watchCursos(String uid) => _cursos
       .where('docenteId', isEqualTo: uid)
@@ -80,19 +77,22 @@ class AcademicoService {
     for (var i = 0; i < fechas.length; i++) {
       final ref = _sesiones.doc();
       sesionRefs.add(ref);
-      escrituras.add((batch) => batch.set(ref, {
-            'docenteId': uid,
-            'cursoId': cursoRef.id,
-            'numero': i + 1,
-            'fecha': Timestamp.fromDate(fechas[i]),
-            'horaInicio': datos.horaInicio.toString(),
-            'horaFin': datos.horaFin.toString(),
-            'asistencias': <String, String>{},
-            'createdAt': FieldValue.serverTimestamp(),
-            'updatedAt': FieldValue.serverTimestamp(),
-          }));
+      escrituras.add(
+        (batch) => batch.set(ref, {
+          'docenteId': uid,
+          'cursoId': cursoRef.id,
+          'numero': i + 1,
+          'fecha': Timestamp.fromDate(fechas[i]),
+          'horaInicio': datos.horaInicio.toString(),
+          'horaFin': datos.horaFin.toString(),
+          'asistencias': <String, String>{},
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }),
+      );
     }
     final descripcion = datos.descripcion?.trim() ?? '';
+    final carrera = datos.carrera?.trim() ?? '';
     try {
       await _escribirEnLotes(escrituras);
       await cursoRef.set({
@@ -100,6 +100,7 @@ class AcademicoService {
         'codigo': datos.codigo.trim().toUpperCase(),
         'nombre': datos.nombre.trim(),
         'descripcion': descripcion.isEmpty ? null : descripcion,
+        'carrera': carrera.isEmpty ? null : carrera,
         'creditos': datos.creditos,
         'totalSesiones': datos.totalSesiones,
         'diasSemana': datos.diasSemana.toSet().toList()..sort(),
@@ -124,11 +125,13 @@ class AcademicoService {
   /// no se edita.
   Future<void> actualizarCurso(Curso curso) async {
     final descripcion = curso.descripcion?.trim() ?? '';
+    final carrera = curso.carrera?.trim() ?? '';
     try {
       await _cursos.doc(curso.id).update({
         'codigo': curso.codigo.trim().toUpperCase(),
         'nombre': curso.nombre.trim(),
         'descripcion': descripcion.isEmpty ? null : descripcion,
+        'carrera': carrera.isEmpty ? null : carrera,
         'creditos': curso.creditos,
         'updatedAt': FieldValue.serverTimestamp(),
       });
@@ -171,10 +174,7 @@ class AcademicoService {
   }
 
   /// Reemplaza todo el mapa de asistencia de la sesión.
-  Future<void> guardarAsistencias(
-    String sesionId,
-    Map<String, EstadoAsistencia> asistencias,
-  ) async {
+  Future<void> guardarAsistencias(String sesionId, Map<String, EstadoAsistencia> asistencias) async {
     try {
       await _sesiones.doc(sesionId).update({
         'asistencias': asistencias.map((id, estado) => MapEntry(id, estado.valor)),
@@ -212,10 +212,7 @@ class AcademicoService {
 
   Future<void> actualizarEstudiante(String id, DatosEstudiante datos) async {
     try {
-      await _estudiantes.doc(id).update({
-        ..._datosEstudiante(datos),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+      await _estudiantes.doc(id).update({..._datosEstudiante(datos), 'updatedAt': FieldValue.serverTimestamp()});
     } on FirebaseException {
       throw const AcademicoFailure('No se pudieron guardar los datos del estudiante.');
     }
@@ -224,9 +221,7 @@ class AcademicoService {
   /// Borra al estudiante y sus matrículas.
   Future<void> eliminarEstudiante(String id, Iterable<String> matriculaIds) async {
     try {
-      await _escribirEnLotes([
-        for (final mid in matriculaIds) (b) => b.delete(_matriculas.doc(mid)),
-      ]);
+      await _escribirEnLotes([for (final mid in matriculaIds) (b) => b.delete(_matriculas.doc(mid))]);
       await _estudiantes.doc(id).delete();
     } on FirebaseException {
       throw const AcademicoFailure('No se pudo eliminar al estudiante.');
@@ -251,10 +246,7 @@ class AcademicoService {
 
   Future<void> cambiarEstadoMatricula(String id, EstadoMatricula estado) async {
     try {
-      await _matriculas.doc(id).update({
-        'estado': estado.valor,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+      await _matriculas.doc(id).update({'estado': estado.valor, 'updatedAt': FieldValue.serverTimestamp()});
     } on FirebaseException {
       throw const AcademicoFailure('No se pudo actualizar la matrícula.');
     }

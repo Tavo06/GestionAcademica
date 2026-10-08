@@ -14,7 +14,18 @@ void main() {
 
       await tester.tap(find.text('Más'));
       await esperar(tester);
-      for (final texto in ['ACADÉMICO', 'DOCENCIA', 'CUENTA', 'Matrículas', 'Reportes', 'Asistencia', 'Jornada', 'Historial', 'Mi perfil', 'Ajustes']) {
+      for (final texto in [
+        'ACADÉMICO',
+        'DOCENCIA',
+        'CUENTA',
+        'Matrículas',
+        'Reportes',
+        'Asistencia',
+        'Jornada',
+        'Historial',
+        'Mi perfil',
+        'Ajustes',
+      ]) {
         expect(find.text(texto), findsWidgets, reason: texto);
       }
       await tester.tap(find.text('Matrículas').last);
@@ -28,8 +39,17 @@ void main() {
     await montarApp(tester, tamano: const Size(1300, 900));
     expect(find.byType(NavigationBar), findsNothing);
     for (final texto in [
-      'Inicio', 'Cursos', 'Estudiantes', 'Matrículas', 'Calificaciones', 'Reportes',
-      'Asistencia', 'Jornada', 'Historial', 'Mi perfil', 'Ajustes',
+      'Inicio',
+      'Cursos',
+      'Estudiantes',
+      'Matrículas',
+      'Calificaciones',
+      'Reportes',
+      'Asistencia',
+      'Jornada',
+      'Historial',
+      'Mi perfil',
+      'Ajustes',
     ]) {
       expect(find.text(texto), findsWidgets, reason: texto);
     }

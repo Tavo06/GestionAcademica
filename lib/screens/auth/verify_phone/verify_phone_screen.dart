@@ -127,7 +127,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                 _codeSent
                     ? 'Ingresa el código de 6 dígitos que enviamos a tu celular.'
                     : 'Te enviaremos un código por SMS para confirmar que este '
-                        'número es tuyo.',
+                          'número es tuyo.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: tokens.textSecondary, height: 1.45),
               ),
@@ -139,10 +139,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.done,
                   autofillHints: const [AutofillHints.telephoneNumberNational],
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(9),
-                  ],
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(9)],
                   enabled: !_codeSent && !busy,
                   onFieldSubmitted: (_) => _handleSend(),
                   decoration: authCelularDecoration(context),
@@ -159,17 +156,10 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                     textInputAction: TextInputAction.done,
                     autofocus: true,
                     autofillHints: const [AutofillHints.oneTimeCode],
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(6),
-                    ],
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)],
                     enabled: !busy,
                     onFieldSubmitted: (_) => _handleConfirm(),
-                    decoration: authInputDecoration(
-                      context,
-                      label: 'Código SMS',
-                      icon: Icons.pin_outlined,
-                    ),
+                    decoration: authInputDecoration(context, label: 'Código SMS', icon: Icons.pin_outlined),
                     validator: Validators.smsCode,
                   ),
                 ),
@@ -204,19 +194,12 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                 OutlinedButton.icon(
                   onPressed: busy ? null : _handleSend,
                   icon: _isSending
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2.2),
-                        )
+                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2.2))
                       : const Icon(Icons.refresh_rounded, size: 20),
                   label: Text(_isSending ? 'Enviando...' : 'Reenviar código'),
                 ),
                 const SizedBox(height: 4),
-                TextButton(
-                  onPressed: busy ? null : _handleChangeNumber,
-                  child: const Text('Cambiar número'),
-                ),
+                TextButton(onPressed: busy ? null : _handleChangeNumber, child: const Text('Cambiar número')),
               ],
               const SizedBox(height: 8),
               TextButton(

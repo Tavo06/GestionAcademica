@@ -6,11 +6,7 @@ class Calificacion {
   final String estudianteId;
   final double nota;
 
-  const Calificacion({
-    required this.evaluacionId,
-    required this.estudianteId,
-    required this.nota,
-  });
+  const Calificacion({required this.evaluacionId, required this.estudianteId, required this.nota});
 
   bool get aprobada => estaAprobado(nota);
 }

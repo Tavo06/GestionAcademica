@@ -42,11 +42,7 @@ class ResumenNotasCurso {
   /// Ordenados por nombre.
   final List<PromedioEstudiante> estudiantes;
 
-  const ResumenNotasCurso({
-    required this.curso,
-    required this.evaluaciones,
-    required this.estudiantes,
-  });
+  const ResumenNotasCurso({required this.curso, required this.evaluaciones, required this.estudiantes});
 
   int get pesoAsignado => evaluaciones.fold(0, (suma, e) => suma + e.peso);
   int get pesoDisponible => (pesoTotal - pesoAsignado).clamp(0, pesoTotal);
@@ -54,8 +50,7 @@ class ResumenNotasCurso {
   Iterable<PromedioEstudiante> get conNotas => estudiantes.where((e) => e.promedio != null);
 
   int get aprobados => estudiantes.where((e) => e.condicion == CondicionNota.aprobado).length;
-  int get desaprobados =>
-      estudiantes.where((e) => e.condicion == CondicionNota.desaprobado).length;
+  int get desaprobados => estudiantes.where((e) => e.condicion == CondicionNota.desaprobado).length;
   int get sinNotas => estudiantes.where((e) => e.condicion == CondicionNota.sinNotas).length;
 
   /// Promedio de los promedios de los estudiantes con notas.
@@ -94,15 +89,12 @@ ResumenNotasCurso calcularResumenNotas({
       final porFecha = a.fecha.compareTo(b.fecha);
       return porFecha != 0 ? porFecha : a.nombre.compareTo(b.nombre);
     });
-  final inscritos = matriculados.toList()
-    ..sort((a, b) => a.nombreCompleto.compareTo(b.nombreCompleto));
+  final inscritos = matriculados.toList()..sort((a, b) => a.nombreCompleto.compareTo(b.nombreCompleto));
 
   return ResumenNotasCurso(
     curso: curso,
     evaluaciones: propias,
-    estudiantes: [
-      for (final estudiante in inscritos) _promedioDe(estudiante, curso, propias),
-    ],
+    estudiantes: [for (final estudiante in inscritos) _promedioDe(estudiante, curso, propias)],
   );
 }
 

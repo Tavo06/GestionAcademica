@@ -27,7 +27,10 @@ class _MatriculasScreenState extends State<MatriculasScreen> {
     final curso = cursoId == null ? null : context.read<AcademicoProvider>().cursoPorId(cursoId);
     final r = await context.abrirMatricula(curso: curso);
     if (r != null && mounted) {
-      showMessage(context, '${r.cantidad} ${r.cantidad == 1 ? 'matrícula registrada' : 'matrículas registradas'} en ${r.curso.nombre}.');
+      showMessage(
+        context,
+        '${r.cantidad} ${r.cantidad == 1 ? 'matrícula registrada' : 'matrículas registradas'} en ${r.curso.nombre}.',
+      );
     }
   }
 
@@ -94,7 +97,10 @@ class _MatriculasScreenState extends State<MatriculasScreen> {
                   items: [
                     const DropdownMenuItem<String?>(value: null, child: Text('Todos los cursos')),
                     for (final c in academico.cursos)
-                      DropdownMenuItem<String?>(value: c.id, child: Text(c.titulo, overflow: TextOverflow.ellipsis)),
+                      DropdownMenuItem<String?>(
+                        value: c.id,
+                        child: Text(c.titulo, overflow: TextOverflow.ellipsis),
+                      ),
                   ],
                   onChanged: (id) => setState(() => _cursoId = id),
                 ),
@@ -134,30 +140,39 @@ class _MatriculasScreenState extends State<MatriculasScreen> {
                   )
                 else
                   for (final m in filtradas)
-                    Builder(builder: (context) {
-                      final estudiante = academico.estudiantePorId(m.estudianteId)!;
-                      final curso = academico.cursoPorId(m.cursoId)!;
-                      final color = m.activa ? tokens.success : tokens.textSecondary;
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Card(
-                          clipBehavior: Clip.antiAlias,
-                          child: Container(
-                            decoration: BoxDecoration(border: Border(left: BorderSide(color: color, width: 4))),
-                            child: ListTile(
-                              onTap: () => context.abrirEstudiante(estudiante, curso: curso),
-                              title: Text(estudiante.nombreVisible, style: const TextStyle(fontWeight: FontWeight.w800)),
-                              subtitle: Text('${curso.titulo}\n${m.estado.etiqueta} desde ${formatFechaCorta(m.fecha)}'),
-                              isThreeLine: true,
-                              trailing: TextButton(
-                                onPressed: () => _cambiarEstado(m),
-                                child: Text(m.activa ? 'Retirar' : 'Reactivar'),
+                    Builder(
+                      builder: (context) {
+                        final estudiante = academico.estudiantePorId(m.estudianteId)!;
+                        final curso = academico.cursoPorId(m.cursoId)!;
+                        final color = m.activa ? tokens.success : tokens.textSecondary;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Card(
+                            clipBehavior: Clip.antiAlias,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border(left: BorderSide(color: color, width: 4)),
+                              ),
+                              child: ListTile(
+                                onTap: () => context.abrirEstudiante(estudiante, curso: curso),
+                                title: Text(
+                                  estudiante.nombreVisible,
+                                  style: const TextStyle(fontWeight: FontWeight.w800),
+                                ),
+                                subtitle: Text(
+                                  '${curso.titulo}\n${m.estado.etiqueta} desde ${formatFechaCorta(m.fecha)}',
+                                ),
+                                isThreeLine: true,
+                                trailing: TextButton(
+                                  onPressed: () => _cambiarEstado(m),
+                                  child: Text(m.activa ? 'Retirar' : 'Reactivar'),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    }),
+                        );
+                      },
+                    ),
               ],
             );
           },

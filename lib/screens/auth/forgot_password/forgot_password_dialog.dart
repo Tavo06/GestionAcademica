@@ -64,7 +64,8 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
     return AuthDialog(
       icon: Icons.key_rounded,
       title: 'Recuperar acceso',
-      subtitle: 'Ingresa tu correo y te enviaremos un enlace para crear una '
+      subtitle:
+          'Ingresa tu correo y te enviaremos un enlace para crear una '
           'nueva contraseña.',
       closable: !_isSubmitting,
       child: Form(
@@ -81,11 +82,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
               autofillHints: const [AutofillHints.email],
               enabled: !_isSubmitting,
               onFieldSubmitted: (_) => _handleSubmit(),
-              decoration: authInputDecoration(
-                context,
-                label: 'Correo electrónico',
-                icon: Icons.mail_outline_rounded,
-              ),
+              decoration: authInputDecoration(context, label: 'Correo electrónico', icon: Icons.mail_outline_rounded),
               validator: Validators.email,
             ),
             if (_sentTo != null) ...[
@@ -96,10 +93,7 @@ class _ForgotPasswordDialogState extends State<ForgotPasswordDialog> {
                 type: AuthMessageType.success,
               ),
             ],
-            if (_error != null) ...[
-              const SizedBox(height: 16),
-              AuthMessage(_error!),
-            ],
+            if (_error != null) ...[const SizedBox(height: 16), AuthMessage(_error!)],
             const SizedBox(height: 24),
             AuthPrimaryButton(
               label: _sentTo == null ? 'Enviar instrucciones' : 'Reenviar correo',

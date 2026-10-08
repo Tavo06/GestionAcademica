@@ -10,12 +10,7 @@ import '../widgets/auth_widgets.dart';
 class RegistrationCompleteScreen extends StatelessWidget {
   const RegistrationCompleteScreen({super.key});
 
-  static const _pasos = [
-    'Datos registrados',
-    'Correo verificado',
-    'Celular verificado',
-    'Contraseña creada',
-  ];
+  static const _pasos = ['Datos registrados', 'Correo verificado', 'Celular verificado', 'Contraseña creada'];
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +24,9 @@ class RegistrationCompleteScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(child: AuthIconBadge(icon: Icons.check_circle_rounded, color: tokens.success)),
+              Center(
+                child: AuthIconBadge(icon: Icons.check_circle_rounded, color: tokens.success),
+              ),
               const SizedBox(height: 16),
               Text(
                 '¡Cuenta creada!',
@@ -46,10 +43,7 @@ class RegistrationCompleteScreen extends StatelessWidget {
               const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: tokens.surfaceMuted,
-                  borderRadius: BorderRadius.circular(14),
-                ),
+                decoration: BoxDecoration(color: tokens.surfaceMuted, borderRadius: BorderRadius.circular(14)),
                 child: Column(
                   children: [
                     for (var i = 0; i < _pasos.length; i++)
@@ -60,10 +54,7 @@ class RegistrationCompleteScreen extends StatelessWidget {
                             Icon(Icons.check_circle_rounded, size: 20, color: tokens.success),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: Text(
-                                _pasos[i],
-                                style: TextStyle(fontSize: 13.5, color: tokens.textPrimary),
-                              ),
+                              child: Text(_pasos[i], style: TextStyle(fontSize: 13.5, color: tokens.textPrimary)),
                             ),
                           ],
                         ),

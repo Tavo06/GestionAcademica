@@ -25,7 +25,6 @@ import 'package:semana5/services/academico_service.dart';
 import 'package:semana5/services/calificaciones_service.dart';
 import 'package:semana5/services/jornada_service.dart';
 
-
 const p = EstadoAsistencia.presente;
 const f = EstadoAsistencia.falta;
 
@@ -42,19 +41,18 @@ Curso cursoDe(
   int total = 16,
   List<int> dias = const [DateTime.monday],
   DateTime? desde,
-}) =>
-    Curso(
-      id: id,
-      docenteId: docenteId,
-      codigo: codigo,
-      nombre: nombre,
-      creditos: 4,
-      totalSesiones: total,
-      diasSemana: dias,
-      horaInicio: HoraDia.tryParse(inicio)!,
-      horaFin: HoraDia.tryParse(fin)!,
-      fechaInicio: desde ?? DateTime(2026, 9, 7),
-    );
+}) => Curso(
+  id: id,
+  docenteId: docenteId,
+  codigo: codigo,
+  nombre: nombre,
+  creditos: 4,
+  totalSesiones: total,
+  diasSemana: dias,
+  horaInicio: HoraDia.tryParse(inicio)!,
+  horaFin: HoraDia.tryParse(fin)!,
+  fechaInicio: desde ?? DateTime(2026, 9, 7),
+);
 
 /// Sesiones de [curso] en sus fechas reales; [marcas] por número de sesión.
 List<Sesion> sesionesDe(Curso curso, [Map<int, Map<String, EstadoAsistencia>> marcas = const {}]) {
@@ -78,24 +76,22 @@ List<Sesion> sesionesDe(Curso curso, [Map<int, Map<String, EstadoAsistencia>> ma
   ];
 }
 
-Estudiante estudianteDe(String id, String nombres, String apellidos, {String docenteId = 'A'}) => Estudiante(
-      id: id,
-      docenteId: docenteId,
-      codigo: id.toUpperCase(),
-      nombres: nombres,
-      apellidos: apellidos,
-    );
+Estudiante estudianteDe(String id, String nombres, String apellidos, {String docenteId = 'A'}) =>
+    Estudiante(id: id, docenteId: docenteId, codigo: id.toUpperCase(), nombres: nombres, apellidos: apellidos);
 
-Matricula matriculaDe(String cursoId, String estudianteId,
-        {String docenteId = 'A', EstadoMatricula estado = EstadoMatricula.activa}) =>
-    Matricula(
-      id: matriculaId(cursoId, estudianteId),
-      docenteId: docenteId,
-      cursoId: cursoId,
-      estudianteId: estudianteId,
-      fecha: DateTime(2026, 9, 1),
-      estado: estado,
-    );
+Matricula matriculaDe(
+  String cursoId,
+  String estudianteId, {
+  String docenteId = 'A',
+  EstadoMatricula estado = EstadoMatricula.activa,
+}) => Matricula(
+  id: matriculaId(cursoId, estudianteId),
+  docenteId: docenteId,
+  cursoId: cursoId,
+  estudianteId: estudianteId,
+  fecha: DateTime(2026, 9, 1),
+  estado: estado,
+);
 
 /// Programación II (lunes 17-20) y Base de Datos (lunes 21-23).
 /// Ana: 5 faltas en PII (LDI). Pedro: 4 en PII (25%) y 1 en BD.
@@ -181,17 +177,17 @@ class FakeAcademicoService implements AcademicoService {
     List<Estudiante> estudiantes = const [],
     List<Sesion> sesiones = const [],
     List<Matricula> matriculas = const [],
-  })  : cursos = List.of(cursos),
-        estudiantes = List.of(estudiantes),
-        sesiones = List.of(sesiones),
-        matriculas = List.of(matriculas);
+  }) : cursos = List.of(cursos),
+       estudiantes = List.of(estudiantes),
+       sesiones = List.of(sesiones),
+       matriculas = List.of(matriculas);
 
   factory FakeAcademicoService.desde(Datos d) => FakeAcademicoService(
-        cursos: d.cursos,
-        estudiantes: d.estudiantes,
-        sesiones: d.sesiones,
-        matriculas: d.matriculas,
-      );
+    cursos: d.cursos,
+    estudiantes: d.estudiantes,
+    sesiones: d.sesiones,
+    matriculas: d.matriculas,
+  );
 
   final List<Curso> cursos;
   final List<Estudiante> estudiantes;
@@ -220,8 +216,7 @@ class FakeAcademicoService implements AcademicoService {
       _watch(() => estudiantes.where((e) => e.docenteId == uid).toList());
 
   @override
-  Stream<List<Sesion>> watchSesiones(String uid) =>
-      _watch(() => sesiones.where((s) => s.docenteId == uid).toList());
+  Stream<List<Sesion>> watchSesiones(String uid) => _watch(() => sesiones.where((s) => s.docenteId == uid).toList());
 
   @override
   Stream<List<Matricula>> watchMatriculas(String uid) =>
@@ -234,6 +229,7 @@ class FakeAcademicoService implements AcademicoService {
       docenteId: uid,
       codigo: datos.codigo.toUpperCase(),
       nombre: datos.nombre,
+      carrera: datos.carrera,
       creditos: datos.creditos,
       totalSesiones: datos.totalSesiones,
       diasSemana: datos.diasSemana,
@@ -316,13 +312,7 @@ class FakeAcademicoService implements AcademicoService {
   Future<void> crearMatricula(String uid, String cursoId, String estudianteId) async {
     final id = matriculaId(cursoId, estudianteId);
     if (matriculas.any((m) => m.id == id)) throw const AcademicoFailure('ya existe');
-    matriculas.add(Matricula(
-      id: id,
-      docenteId: uid,
-      cursoId: cursoId,
-      estudianteId: estudianteId,
-      fecha: ahoraPrueba,
-    ));
+    matriculas.add(Matricula(id: id, docenteId: uid, cursoId: cursoId, estudianteId: estudianteId, fecha: ahoraPrueba));
     _avisar();
   }
 
@@ -389,18 +379,20 @@ class FakeJornadaService implements JornadaService {
 
   @override
   Future<void> marcarEntrada(String uid, Curso curso, Sesion sesion) async {
-    registros.add(Jornada(
-      id: jornadaDocId(uid, sesion.id),
-      docenteId: uid,
-      fecha: sesion.fecha,
-      entrada: reloj(),
-      cursoId: curso.id,
-      sesionId: sesion.id,
-      cursoNombre: curso.nombre,
-      sesionNumero: sesion.numero,
-      horaProgramadaInicio: sesion.horaInicio,
-      horaProgramadaFin: sesion.horaFin,
-    ));
+    registros.add(
+      Jornada(
+        id: jornadaDocId(uid, sesion.id),
+        docenteId: uid,
+        fecha: sesion.fecha,
+        entrada: reloj(),
+        cursoId: curso.id,
+        sesionId: sesion.id,
+        cursoNombre: curso.nombre,
+        sesionNumero: sesion.numero,
+        horaProgramadaInicio: sesion.horaInicio,
+        horaProgramadaFin: sesion.horaFin,
+      ),
+    );
     _cambios.add(null);
   }
 
@@ -468,26 +460,32 @@ Future<({AcademicoProvider academico, CalificacionesProvider calificaciones, GoR
   final auth = AuthProvider.paraPruebas(docentePrueba);
   // Providers conectados a Firestore en memoria: lo que se guarda vuelve
   // por los streams, igual que con Firebase.
-  final aca = academico ??
+  final aca =
+      academico ??
       (AcademicoProvider(service: FakeAcademicoService.desde(datosPrueba()), reloj: () => ahoraPrueba)
         ..bindTeacher('A'));
-  final cal = calificaciones ??
-      (CalificacionesProvider(aca, service: FakeCalificacionesService(datosPrueba().evaluaciones))
-        ..bindTeacher('A'));
+  final cal =
+      calificaciones ??
+      (CalificacionesProvider(aca, service: FakeCalificacionesService(datosPrueba().evaluaciones))..bindTeacher('A'));
   final jornadas = JornadaProvider(service: FakeJornadaService(() => ahoraPrueba), reloj: () => ahoraPrueba)
     ..bindTeacher('A');
   final router = buildRouter(auth, inicial: ruta, sinRedireccion: true);
   addTearDown(router.dispose);
-  await tester.pumpWidget(MultiProvider(
-    providers: [
-      ChangeNotifierProvider<AuthProvider>.value(value: auth),
-      ChangeNotifierProvider.value(value: aca),
-      ChangeNotifierProvider.value(value: cal),
-      ChangeNotifierProvider.value(value: jornadas),
-      ChangeNotifierProvider(create: (_) => TemaProvider()),
-    ],
-    child: MaterialApp.router(theme: temaPrueba(oscuro: oscuro), routerConfig: router),
-  ));
+  await tester.pumpWidget(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthProvider>.value(value: auth),
+        ChangeNotifierProvider.value(value: aca),
+        ChangeNotifierProvider.value(value: cal),
+        ChangeNotifierProvider.value(value: jornadas),
+        ChangeNotifierProvider(create: (_) => TemaProvider()),
+      ],
+      child: MaterialApp.router(
+        theme: temaPrueba(oscuro: oscuro),
+        routerConfig: router,
+      ),
+    ),
+  );
   await esperar(tester);
   return (academico: aca, calificaciones: cal, router: router);
 }

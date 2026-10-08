@@ -89,10 +89,10 @@ class _JornadaScreenState extends State<JornadaScreen> {
                   Text(
                     '${formatHora(_ahora)}:${_ahora.second.toString().padLeft(2, '0')}',
                     style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
                   ),
                   Text('${hoy.length} ${hoy.length == 1 ? 'sesión' : 'sesiones'} hoy'),
                 ],
@@ -171,8 +171,11 @@ class _JornadaSesionCard extends StatelessWidget {
     final motivo = jornada == null ? validarEntrada(inicio: sesion.inicio, fin: sesion.fin, ahora: ahora) : null;
     final estado = switch (jornada) {
       null => StatusChip(label: 'Pendiente', color: tokens.textSecondary, icon: Icons.schedule_rounded),
-      final j when j.abierta =>
-        StatusChip(label: 'En curso', color: context.colors.secondary, icon: Icons.play_circle_rounded),
+      final j when j.abierta => StatusChip(
+        label: 'En curso',
+        color: context.colors.secondary,
+        icon: Icons.play_circle_rounded,
+      ),
       _ => StatusChip(label: 'Finalizada', color: tokens.success, icon: Icons.verified_rounded),
     };
 
@@ -188,9 +191,15 @@ class _JornadaSesionCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(curso.titulo, style: TextStyle(fontWeight: FontWeight.w800, color: tokens.textPrimary)),
+                      Text(
+                        curso.titulo,
+                        style: TextStyle(fontWeight: FontWeight.w800, color: tokens.textPrimary),
+                      ),
                       InfoLine(icon: Icons.schedule_rounded, text: 'Programado: ${sesion.horario}'),
-                      InfoLine(icon: Icons.event_note_rounded, text: 'Sesión ${sesion.numero} de ${curso.totalSesiones}'),
+                      InfoLine(
+                        icon: Icons.event_note_rounded,
+                        text: 'Sesión ${sesion.numero} de ${curso.totalSesiones}',
+                      ),
                     ],
                   ),
                 ),

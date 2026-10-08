@@ -30,8 +30,7 @@ class Validators {
     if (value.length < 8) {
       return 'La contraseña debe tener al menos 8 caracteres';
     }
-    if (!RegExp(r'[A-Za-zÁÉÍÓÚáéíóúÑñ]').hasMatch(value) ||
-        !RegExp(r'\d').hasMatch(value)) {
+    if (!RegExp(r'[A-Za-zÁÉÍÓÚáéíóúÑñ]').hasMatch(value) || !RegExp(r'\d').hasMatch(value)) {
       return 'La contraseña debe incluir letras y números';
     }
     return null;
@@ -85,6 +84,20 @@ class Validators {
     return null;
   }
 
+  /// Edad mínima y máxima aceptadas para un docente.
+  static const int edadMinima = 18;
+  static const int edadMaxima = 100;
+
+  /// Fecha de nacimiento del docente: obligatoria y con una edad entre
+  /// [edadMinima] y [edadMaxima] años.
+  static String? fechaNacimiento(DateTime? value, {DateTime? hoy}) {
+    if (value == null) return 'Selecciona tu fecha de nacimiento';
+    final edad = edadEn(value, hoy ?? DateTime.now());
+    if (edad < edadMinima) return 'Debes tener al menos $edadMinima años.';
+    if (edad > edadMaxima) return 'Revisa el año de nacimiento.';
+    return null;
+  }
+
   static String? smsCode(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Ingresa el código que recibiste por SMS';
@@ -94,4 +107,12 @@ class Validators {
     }
     return null;
   }
+}
+
+/// Años cumplidos en [hoy] por alguien nacido en [nacimiento].
+int edadEn(DateTime nacimiento, DateTime hoy) {
+  var edad = hoy.year - nacimiento.year;
+  final yaCumplio = hoy.month > nacimiento.month || (hoy.month == nacimiento.month && hoy.day >= nacimiento.day);
+  if (!yaCumplio) edad--;
+  return edad;
 }

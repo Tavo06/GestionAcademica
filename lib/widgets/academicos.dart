@@ -25,10 +25,10 @@ extension EstadoAsistenciaUi on EstadoAsistencia {
   }
 
   IconData get icon => switch (this) {
-        EstadoAsistencia.presente => Icons.check_circle_rounded,
-        EstadoAsistencia.tarde => Icons.watch_later_rounded,
-        EstadoAsistencia.falta => Icons.cancel_rounded,
-      };
+    EstadoAsistencia.presente => Icons.check_circle_rounded,
+    EstadoAsistencia.tarde => Icons.watch_later_rounded,
+    EstadoAsistencia.falta => Icons.cancel_rounded,
+  };
 }
 
 class EstadoChip extends StatelessWidget {
@@ -70,13 +70,16 @@ class SesionEstadoChip extends StatelessWidget {
       return StatusChip(label: 'Hoy', color: context.colors.secondary, icon: Icons.today_rounded);
     }
     return switch (semanaDe(sesion.fecha, hoy)) {
-      SemanaSesion.anterior =>
-        StatusChip(label: 'Semana cerrada', color: tokens.textSecondary, icon: Icons.lock_rounded),
-      SemanaSesion.futura =>
-        StatusChip(label: 'Programada', color: tokens.info, icon: Icons.lock_clock_rounded),
-      SemanaSesion.actual => sesion.fecha.isAfter(hoy)
-          ? StatusChip(label: 'Programada', color: tokens.info, icon: Icons.lock_clock_rounded)
-          : StatusChip(label: 'Esta semana', color: tokens.success, icon: Icons.edit_calendar_rounded),
+      SemanaSesion.anterior => StatusChip(
+        label: 'Semana cerrada',
+        color: tokens.textSecondary,
+        icon: Icons.lock_rounded,
+      ),
+      SemanaSesion.futura => StatusChip(label: 'Programada', color: tokens.info, icon: Icons.lock_clock_rounded),
+      SemanaSesion.actual =>
+        sesion.fecha.isAfter(hoy)
+            ? StatusChip(label: 'Programada', color: tokens.info, icon: Icons.lock_clock_rounded)
+            : StatusChip(label: 'Esta semana', color: tokens.success, icon: Icons.edit_calendar_rounded),
     };
   }
 }
@@ -91,16 +94,16 @@ class ResumenLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget item(EstadoAsistencia estado, int valor) => Padding(
-          padding: const EdgeInsets.only(right: 10),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(estado.icon, size: 14, color: estado.colorEn(context)),
-              const SizedBox(width: 3),
-              Text('$valor', style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
-            ],
-          ),
-        );
+      padding: const EdgeInsets.only(right: 10),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(estado.icon, size: 14, color: estado.colorEn(context)),
+          const SizedBox(width: 3),
+          Text('$valor', style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
+        ],
+      ),
+    );
     return Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,
       runSpacing: 4,
@@ -131,16 +134,16 @@ extension PuntualidadUi on ResultadoMarca {
 
 extension CondicionNotaUi on CondicionNota {
   Color colorEn(BuildContext context) => switch (this) {
-        CondicionNota.aprobado => context.tokens.success,
-        CondicionNota.desaprobado => context.tokens.error,
-        CondicionNota.sinNotas => context.tokens.textSecondary,
-      };
+    CondicionNota.aprobado => context.tokens.success,
+    CondicionNota.desaprobado => context.tokens.error,
+    CondicionNota.sinNotas => context.tokens.textSecondary,
+  };
 
   IconData get icon => switch (this) {
-        CondicionNota.aprobado => Icons.verified_rounded,
-        CondicionNota.desaprobado => Icons.trending_down_rounded,
-        CondicionNota.sinNotas => Icons.hourglass_empty_rounded,
-      };
+    CondicionNota.aprobado => Icons.verified_rounded,
+    CondicionNota.desaprobado => Icons.trending_down_rounded,
+    CondicionNota.sinNotas => Icons.hourglass_empty_rounded,
+  };
 }
 
 class CondicionChip extends StatelessWidget {
@@ -227,10 +230,7 @@ class CursoCard extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: colors.primary),
                     ),
-                    Text(
-                      '${curso.creditos} cr.',
-                      style: TextStyle(fontSize: 11, color: tokens.textSecondary),
-                    ),
+                    Text('${curso.creditos} cr.', style: TextStyle(fontSize: 11, color: tokens.textSecondary)),
                   ],
                 ),
               ),
@@ -242,17 +242,14 @@ class CursoCard extends StatelessWidget {
                     children: [
                       Text(
                         curso.nombre,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: tokens.textPrimary,
-                            ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800, color: tokens.textPrimary),
                       ),
+                      if (curso.carrera != null) InfoLine(icon: Icons.school_rounded, text: curso.carrera!),
                       InfoLine(icon: Icons.calendar_today_rounded, text: '${curso.diasTexto} · ${curso.horario}'),
                       InfoLine(
                         icon: Icons.upcoming_rounded,
-                        text: proxima == null
-                            ? 'Curso finalizado'
-                            : 'Próxima: ${formatFechaLarga(proxima.fecha)}',
+                        text: proxima == null ? 'Curso finalizado' : 'Próxima: ${formatFechaLarga(proxima.fecha)}',
                       ),
                       const SizedBox(height: 10),
                       ProgressLine(
@@ -339,10 +336,7 @@ class EstudianteTile extends StatelessWidget {
                         estudiante.nombreVisible,
                         style: TextStyle(fontWeight: FontWeight.w800, color: tokens.textPrimary),
                       ),
-                      Text(
-                        detalle ?? estudiante.codigo,
-                        style: TextStyle(fontSize: 12.5, color: tokens.textSecondary),
-                      ),
+                      Text(detalle ?? estudiante.codigo, style: TextStyle(fontSize: 12.5, color: tokens.textSecondary)),
                       if (extra != null) ...[const SizedBox(height: 6), extra!],
                     ],
                   ),
@@ -408,7 +402,10 @@ class SesionTile extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      Text('S', style: TextStyle(fontSize: 10, color: acento, fontWeight: FontWeight.w700)),
+                      Text(
+                        'S',
+                        style: TextStyle(fontSize: 10, color: acento, fontWeight: FontWeight.w700),
+                      ),
                       Text(
                         '${sesion.numero}',
                         style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: acento),
@@ -469,13 +466,7 @@ class MarcaTile extends StatelessWidget {
   final ResultadoMarca? resultado;
   final IconData icon;
 
-  const MarcaTile({
-    super.key,
-    required this.label,
-    required this.hora,
-    required this.resultado,
-    required this.icon,
-  });
+  const MarcaTile({super.key, required this.label, required this.hora, required this.resultado, required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -483,10 +474,7 @@ class MarcaTile extends StatelessWidget {
     final resultado = this.resultado;
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: tokens.surfaceMuted,
-        borderRadius: BorderRadius.circular(10),
-      ),
+      decoration: BoxDecoration(color: tokens.surfaceMuted, borderRadius: BorderRadius.circular(10)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -500,10 +488,8 @@ class MarcaTile extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             formatHora(hora),
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: tokens.textPrimary,
-                ),
+            style: Theme.of(context).textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w700, color: tokens.textPrimary),
           ),
           if (resultado != null) ...[
             const SizedBox(height: 4),
