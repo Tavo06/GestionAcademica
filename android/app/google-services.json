@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "465112543665",
+    "firebase_url": "https://semana5-de37f-default-rtdb.firebaseio.com",
+    "project_id": "semana5-de37f",
+    "storage_bucket": "semana5-de37f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:465112543665:android:7b69b1b0f6c48ce8990d90",
+        "android_client_info": {
+          "package_name": "com.example.semana5"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "465112543665-j3g49uji9uq6s8pdeoqdiung1s3hkafp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.semana5",
+            "certificate_hash": "8e07c610446a805829bf62263468086d47fbeb62"
+          }
+        },
+        {
+          "client_id": "465112543665-iakge3nqifpcvo4v7lfs35ko14tfnuh2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBR7GqAg86zQ_IJV2FtxCHS8OVRza-Von4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "465112543665-iakge3nqifpcvo4v7lfs35ko14tfnuh2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
